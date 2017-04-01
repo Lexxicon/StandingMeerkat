@@ -5,7 +5,10 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.EntityProcessingSystem;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 import com.lexxiconstudios.vestibule.core.component.Position;
 import com.lexxiconstudios.vestibule.core.component.Sprite;
 
@@ -13,6 +16,12 @@ public class RenderingSystem extends EntityProcessingSystem {
 
 	@Wire
 	private SpriteBatch batch;
+	@Wire
+	private OrthographicCamera mainCamera;
+	@Wire
+	private World box2dWorld;
+
+	private Box2DDebugRenderer debug = new Box2DDebugRenderer();
 
 	ComponentMapper<Position> positionMapper;
 	ComponentMapper<Sprite> spriteMapper;
@@ -35,6 +44,9 @@ public class RenderingSystem extends EntityProcessingSystem {
 				sprite.getSrcX(), sprite.getSrcY(), 
 				sprite.getSrcWidth(), sprite.getSrcHeight(),
 				sprite.isFlipX(), sprite.isFlipY());
+		
+
+		debug.render(box2dWorld, mainCamera.combined);
 	}
 
 }
