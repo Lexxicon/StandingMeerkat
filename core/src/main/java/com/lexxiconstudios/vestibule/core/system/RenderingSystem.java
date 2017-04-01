@@ -18,10 +18,6 @@ public class RenderingSystem extends EntityProcessingSystem {
 	private SpriteBatch batch;
 	@Wire
 	private OrthographicCamera mainCamera;
-	@Wire
-	private World box2dWorld;
-
-	private Box2DDebugRenderer debug = new Box2DDebugRenderer();
 
 	ComponentMapper<Position> positionMapper;
 	ComponentMapper<Sprite> spriteMapper;
@@ -30,6 +26,18 @@ public class RenderingSystem extends EntityProcessingSystem {
 		super(Aspect.all(Position.class, Sprite.class));
 	}
 
+	@Override
+	protected void begin() {
+		super.begin();
+		batch.begin();
+	}
+	
+	@Override
+	protected void end() {
+		super.end();
+		batch.end();
+	}
+	
 	@Override
 	protected void process(Entity e) {
 		Sprite sprite = spriteMapper.get(e);
@@ -46,7 +54,6 @@ public class RenderingSystem extends EntityProcessingSystem {
 				sprite.isFlipX(), sprite.isFlipY());
 		
 
-		debug.render(box2dWorld, mainCamera.combined);
 	}
 
 }

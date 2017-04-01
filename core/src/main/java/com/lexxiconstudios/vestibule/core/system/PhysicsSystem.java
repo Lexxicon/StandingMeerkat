@@ -15,7 +15,7 @@ public class PhysicsSystem extends IntervalEntityProcessingSystem {
 	public static final float PHYSICS_TICK_RATE = 1 / 300f;
 	public static final int VELOCITY_ITERATIONS = 6;
 	public static final int POSITION_ITERATIONS = 2;
-	public static final float WORLD_SCALE = 10;
+	public static final float WORLD_SCALE = 32;
 
 	private ComponentMapper<PhysicsBody> bodyMapper;
 	private ComponentMapper<Position> positionMapper;
