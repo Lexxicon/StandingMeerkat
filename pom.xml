@@ -24,6 +24,12 @@
 				<version>${lbg.gdx.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>com.badlogicgames.gdx</groupId>
+				<artifactId>gdx-box2d</artifactId>
+				<version>${lbg.gdx.version}</version>
+			</dependency>
+			
 			<!-- android-specific dependencies -->
 			<dependency>
 				<groupId>com.badlogicgames.gdx</groupId>
@@ -59,6 +65,14 @@
 				<artifactId>gdx-platform</artifactId>
 				<version>${lbg.gdx.version}</version>
 				<classifier>natives-armeabi-v7a</classifier>
+				<scope>provided</scope>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.badlogicgames.gdx</groupId>
+				<artifactId>gdx-box2d-platform</artifactId>
+				<version>${lbg.gdx.version}</version>
+				<classifier>natives-desktop</classifier>
 				<scope>provided</scope>
 			</dependency>
 
