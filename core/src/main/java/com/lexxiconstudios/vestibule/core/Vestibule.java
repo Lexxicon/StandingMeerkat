@@ -41,7 +41,7 @@ public class Vestibule implements ApplicationListener {
 		peff.setPosition(50, 50);
 
 		mainCamera = new OrthographicCamera();
-		mainViewPort = new FitViewport(100,100, mainCamera);
+		mainViewPort = new FitViewport(200,200, mainCamera);
 		mainViewPort.apply();
 		
 		WorldConfiguration wcfg = new WorldConfigurationBuilder()

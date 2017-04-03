@@ -41,7 +41,7 @@ public class BaseEntFac {
 				2f, 0, 
 				2f, 1f,
 				0, 1f });
-
+		
 		// Create a fixture definition to apply our shape to
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = poly;
@@ -51,7 +51,7 @@ public class BaseEntFac {
 
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
-
+		body.applyTorque(100, true);
 		pb.setB2dBody(body);
 
 		Position pos = new Position();

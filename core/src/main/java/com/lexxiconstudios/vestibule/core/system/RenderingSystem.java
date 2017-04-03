@@ -30,19 +30,20 @@ public class RenderingSystem extends EntityProcessingSystem {
 		batch.begin();
 		batch.setProjectionMatrix(mainCamera.combined);
 	}
-	
+
 	@Override
 	protected void end() {
 		super.end();
 		batch.end();
 	}
-	
+
 	@Override
 	protected void process(Entity e) {
 		Sprite sprite = spriteMapper.get(e);
 		Position pos = positionMapper.get(e);
 		sprite.getTexture().setPosition(pos.getX(), pos.getY());
-		sprite.getTexture().setRotation(pos.getRotation());
+		sprite.getTexture().setOrigin(0, 0);
+		sprite.getTexture().rotate(pos.getRotation() - sprite.getTexture().getRotation());
 		sprite.getTexture().draw(batch);
 	}
 
