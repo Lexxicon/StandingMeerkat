@@ -5,6 +5,7 @@ import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,19 +28,21 @@ public class Vestibule implements ApplicationListener {
 
 	World world;
 	Viewport mainViewPort;
+	Camera mainCamera;
 	
 	@Override
 	public void create() {
 		Box2D.init();
 
-		texture = new Texture(Gdx.files.internal("libgdx-logo.png"));
+		texture = new Texture(Gdx.files.internal("64_32.png"));
 		batch = new SpriteBatch();
 		peff = new ParticleEffect();
 		peff.load(Gdx.files.internal("effects/defaultFire.p"), Gdx.files.internal("effects"));
 		peff.setPosition(50, 50);
 
-		OrthographicCamera mainCam = new OrthographicCamera(200, 200);
-		mainViewPort = new FitViewport(100, 100, mainCam);
+		mainCamera = new OrthographicCamera();
+		mainViewPort = new FitViewport(100,100, mainCamera);
+		mainViewPort.apply();
 		
 		WorldConfiguration wcfg = new WorldConfigurationBuilder()
 				.with(
@@ -48,9 +51,9 @@ public class Vestibule implements ApplicationListener {
 						new DebugPhysicsRenderer())
 				.build();
 		
-		wcfg.register(new com.badlogic.gdx.physics.box2d.World(new Vector2(0, -10), true));
+		wcfg.register(new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0), true));
 		wcfg.register(batch);
-		wcfg.register(mainCam);
+		wcfg.register(mainViewPort.getCamera());
 		
 		world = new World(wcfg);
 		world.getSystem(DebugPhysicsRenderer.class).setEnable(true);
@@ -60,14 +63,13 @@ public class Vestibule implements ApplicationListener {
 
 	@Override
 	public void resize(int width, int height) {
-		mainViewPort.update(width, height, true);
+	      mainViewPort.update(width,height);
 	}
 
 	@Override
 	public void render() {
 		elapsed += Gdx.graphics.getDeltaTime();
 		world.delta = Gdx.graphics.getDeltaTime();
-		mainViewPort.apply();
 		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 0);
 		Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 		world.process();
@@ -85,5 +87,6 @@ public class Vestibule implements ApplicationListener {
 	public void dispose() {
 		world.getRegistered(com.badlogic.gdx.physics.box2d.World.class).dispose();
 		world.dispose();
+		batch.dispose();
 	}
 }

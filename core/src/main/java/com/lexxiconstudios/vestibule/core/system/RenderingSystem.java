@@ -7,8 +7,6 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.EntityProcessingSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.World;
 import com.lexxiconstudios.vestibule.core.component.Position;
 import com.lexxiconstudios.vestibule.core.component.Sprite;
 
@@ -30,6 +28,7 @@ public class RenderingSystem extends EntityProcessingSystem {
 	protected void begin() {
 		super.begin();
 		batch.begin();
+		batch.setProjectionMatrix(mainCamera.combined);
 	}
 	
 	@Override
@@ -42,18 +41,9 @@ public class RenderingSystem extends EntityProcessingSystem {
 	protected void process(Entity e) {
 		Sprite sprite = spriteMapper.get(e);
 		Position pos = positionMapper.get(e);
-		batch.draw(
-				sprite.getTexture(), 
-				pos.getX(), pos.getY(), 
-				sprite.getOriginX(), sprite.getOriginY(),
-				sprite.getWidth(), sprite.getHeight(), 
-				sprite.getScaleX(), sprite.getScaleY(), 
-				pos.getRotation(),
-				sprite.getSrcX(), sprite.getSrcY(), 
-				sprite.getSrcWidth(), sprite.getSrcHeight(),
-				sprite.isFlipX(), sprite.isFlipY());
-		
-
+		sprite.getTexture().setPosition(pos.getX(), pos.getY());
+		sprite.getTexture().setRotation(pos.getRotation());
+		sprite.getTexture().draw(batch);
 	}
 
 }

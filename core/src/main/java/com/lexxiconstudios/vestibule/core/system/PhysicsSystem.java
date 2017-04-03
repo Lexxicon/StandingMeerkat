@@ -15,7 +15,8 @@ public class PhysicsSystem extends IntervalEntityProcessingSystem {
 	public static final float PHYSICS_TICK_RATE = 1 / 300f;
 	public static final int VELOCITY_ITERATIONS = 6;
 	public static final int POSITION_ITERATIONS = 2;
-	public static final float WORLD_SCALE = 32;
+	public static final float BOX_TO_WORLD = 32;
+	public static final float WORLD_TO_BOX = 1f/BOX_TO_WORLD;
 
 	private ComponentMapper<PhysicsBody> bodyMapper;
 	private ComponentMapper<Position> positionMapper;
@@ -42,8 +43,9 @@ public class PhysicsSystem extends IntervalEntityProcessingSystem {
 		PhysicsBody body = bodyMapper.get(e);
 		Position p = positionMapper.get(e);
 		p.setRotation(MathUtils.radiansToDegrees * body.getB2dBody().getAngle());
-		p.setX(body.getB2dBody().getPosition().x * WORLD_SCALE);
-		p.setY(body.getB2dBody().getPosition().y * WORLD_SCALE);
+		p.setX(body.getB2dBody().getPosition().x * BOX_TO_WORLD);
+		p.setY(body.getB2dBody().getPosition().y * BOX_TO_WORLD);
+		
 	}
 
 }

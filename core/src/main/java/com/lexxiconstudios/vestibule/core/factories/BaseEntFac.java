@@ -16,16 +16,17 @@ import com.lexxiconstudios.vestibule.core.component.Sprite;
 
 public class BaseEntFac {
 
-	public Entity makeThing(World world, Texture texture){
+	public Entity makeThing(World world, Texture texture) {
 
 		Sprite sprite = new Sprite();
-		sprite.setTexture(texture);
-		sprite.init();
+		sprite.setTexture(
+				new com.badlogic.gdx.graphics.g2d.Sprite(
+						texture, 0, 0, 64, 32));
 		PhysicsBody pb = new PhysicsBody();
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
 		// Set our body's starting position in the world
-		bodyDef.position.set(10, 10);
+		bodyDef.position.set(-1, 0);
 		com.badlogic.gdx.physics.box2d.World w = world.getRegistered(com.badlogic.gdx.physics.box2d.World.class);
 		// Create our body in the world using our body definition
 		Body body = w.createBody(bodyDef);
@@ -33,30 +34,29 @@ public class BaseEntFac {
 		// Create a circle shape and set its radius to 6
 		CircleShape circle = new CircleShape();
 		circle.setRadius(6f);
-		
+
 		PolygonShape poly = new PolygonShape();
-		poly.set(new float[]{
-				0,0,
-				6,0,
-				6,6,
-				0,6
-		});
-		
+		poly.set(new float[] { 
+				0, 0, 
+				2f, 0, 
+				2f, 1f,
+				0, 1f });
+
 		// Create a fixture definition to apply our shape to
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = poly;
-		fixtureDef.density = 0.5f; 
+		fixtureDef.density = 0.5f;
 		fixtureDef.friction = 0.4f;
 		fixtureDef.restitution = 0.6f; // Make it bounce a little bit
 
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
-		
+
 		pb.setB2dBody(body);
-		
+
 		Position pos = new Position();
-		
+
 		return new EntityBuilder(world).with(sprite, pos, pb).build();
 	}
-	
+
 }
