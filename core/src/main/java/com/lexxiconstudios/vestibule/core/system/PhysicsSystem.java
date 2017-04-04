@@ -16,12 +16,15 @@ public class PhysicsSystem extends IntervalEntityProcessingSystem {
 	public static final int VELOCITY_ITERATIONS = 6;
 	public static final int POSITION_ITERATIONS = 2;
 	public static final float BOX_TO_WORLD = 32;
-	public static final float WORLD_TO_BOX = 1f/BOX_TO_WORLD;
+	public static final float WORLD_TO_BOX = 1f / BOX_TO_WORLD;
 
 	private ComponentMapper<PhysicsBody> bodyMapper;
 	private ComponentMapper<Position> positionMapper;
 	@Wire
 	private World box2dWorld;
+
+	private float accDelta;
+	private long stepCount;
 
 	public PhysicsSystem() {
 		super(Aspect.all(PhysicsBody.class, Position.class), PHYSICS_TICK_RATE);
@@ -30,7 +33,16 @@ public class PhysicsSystem extends IntervalEntityProcessingSystem {
 	@Override
 	protected void begin() {
 		super.begin();
-		box2dWorld.step(PHYSICS_TICK_RATE, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
+		float actualDelta = getIntervalDelta() + accDelta;
+		while ((actualDelta -= PHYSICS_TICK_RATE) > PHYSICS_TICK_RATE) {
+			box2dWorld.step(PHYSICS_TICK_RATE, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
+			stepCount++;
+		}
+		accDelta = actualDelta;
+	}
+
+	public long getStepCount() {
+		return stepCount;
 	}
 
 	@Override
@@ -45,7 +57,7 @@ public class PhysicsSystem extends IntervalEntityProcessingSystem {
 		p.setRotation(MathUtils.radiansToDegrees * body.getB2dBody().getAngle());
 		p.setX(body.getB2dBody().getPosition().x * BOX_TO_WORLD);
 		p.setY(body.getB2dBody().getPosition().y * BOX_TO_WORLD);
-		
+
 	}
 
 }

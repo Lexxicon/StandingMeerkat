@@ -3,37 +3,39 @@ package com.lexxiconstudios.vestibule.core.factories;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.utils.EntityBuilder;
+import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.lexxiconstudios.vestibule.core.component.LXSprite;
+import com.lexxiconstudios.vestibule.core.component.ParticleEffComponent;
 import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
 import com.lexxiconstudios.vestibule.core.component.Position;
-import com.lexxiconstudios.vestibule.core.component.Sprite;
 
 public class BaseEntFac {
+	AssetManager am;
+	
+	public BaseEntFac(AssetManager am) {
+		this.am = am;
+	}
+	public Entity makeThing(World world, AssetDescriptor<Texture> texture, AssetDescriptor<ParticleEffect> pef, float x, float y) {
 
-	public Entity makeThing(World world, Texture texture) {
-
-		Sprite sprite = new Sprite();
-		sprite.setTexture(
-				new com.badlogic.gdx.graphics.g2d.Sprite(
-						texture, 0, 0, 64, 32));
+		LXSprite sprite = new LXSprite();
+		sprite.set(new Sprite(am.get(texture), 0, 0, 64, 32));
 		PhysicsBody pb = new PhysicsBody();
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
 		// Set our body's starting position in the world
-		bodyDef.position.set(-1, 0);
+		bodyDef.position.set(x, y);
 		com.badlogic.gdx.physics.box2d.World w = world.getRegistered(com.badlogic.gdx.physics.box2d.World.class);
 		// Create our body in the world using our body definition
 		Body body = w.createBody(bodyDef);
-
-		// Create a circle shape and set its radius to 6
-		CircleShape circle = new CircleShape();
-		circle.setRadius(6f);
 
 		PolygonShape poly = new PolygonShape();
 		poly.set(new float[] { 
@@ -55,8 +57,13 @@ public class BaseEntFac {
 		pb.setB2dBody(body);
 
 		Position pos = new Position();
-
-		return new EntityBuilder(world).with(sprite, pos, pb).build();
+		
+		ParticleEffect peff = am.get(pef);
+		ParticleEffComponent pefc = new ParticleEffComponent();
+		pefc.setOffset(new Position());
+		pefc.setParticleEffect(peff);
+		
+		return new EntityBuilder(world).with(sprite, pos, pefc, pb).build();
 	}
 
 }

@@ -8,7 +8,7 @@ import com.artemis.systems.EntityProcessingSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.lexxiconstudios.vestibule.core.component.Position;
-import com.lexxiconstudios.vestibule.core.component.Sprite;
+import com.lexxiconstudios.vestibule.core.component.LXSprite;
 
 public class RenderingSystem extends EntityProcessingSystem {
 
@@ -18,10 +18,10 @@ public class RenderingSystem extends EntityProcessingSystem {
 	private OrthographicCamera mainCamera;
 
 	ComponentMapper<Position> positionMapper;
-	ComponentMapper<Sprite> spriteMapper;
+	ComponentMapper<LXSprite> spriteMapper;
 
 	public RenderingSystem() {
-		super(Aspect.all(Position.class, Sprite.class));
+		super(Aspect.all(Position.class, LXSprite.class));
 	}
 
 	@Override
@@ -39,12 +39,12 @@ public class RenderingSystem extends EntityProcessingSystem {
 
 	@Override
 	protected void process(Entity e) {
-		Sprite sprite = spriteMapper.get(e);
+		LXSprite sprite = spriteMapper.get(e);
 		Position pos = positionMapper.get(e);
-		sprite.getTexture().setPosition(pos.getX(), pos.getY());
-		sprite.getTexture().setOrigin(0, 0);
-		sprite.getTexture().rotate(pos.getRotation() - sprite.getTexture().getRotation());
-		sprite.getTexture().draw(batch);
+		sprite.get().setPosition(pos.getX(), pos.getY());
+		sprite.get().setOrigin(0, 0);
+		sprite.get().rotate(pos.getRotation() - sprite.get().getRotation());
+		sprite.get().draw(batch);
 	}
 
 }
