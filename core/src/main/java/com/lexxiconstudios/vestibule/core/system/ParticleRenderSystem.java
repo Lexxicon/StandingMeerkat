@@ -43,9 +43,9 @@ public class ParticleRenderSystem extends EntityProcessingSystem {
 	protected void process(Entity e) {
 		ParticleEffComponent effComp = effectMapper.get(e);
 		ParticleEffect effect = effComp.getParticleEffect();
-		Position p = positionMapper.getSafe(e, emptyPosition);	
+		Position p = positionMapper.getSafe(e, emptyPosition);
 		effComp.applyRotation(p.getRotation());
-		if(effect.isComplete()){
+		if (effect.isComplete()) {
 			effect.start();
 		}
 		effect.update(deltaP.getDelta());

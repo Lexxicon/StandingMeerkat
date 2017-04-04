@@ -53,7 +53,7 @@ public class BaseEntFac {
 
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
-		body.applyTorque(100, true);
+		body.applyTorque(10, true);
 		pb.setB2dBody(body);
 
 		Position pos = new Position();

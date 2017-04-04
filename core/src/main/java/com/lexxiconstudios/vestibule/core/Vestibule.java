@@ -12,7 +12,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
@@ -24,6 +23,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.lexxiconstudios.vestibule.core.exceptions.MultiException;
 import com.lexxiconstudios.vestibule.core.factories.BaseEntFac;
+import com.lexxiconstudios.vestibule.core.system.ClearScreenSystem;
 import com.lexxiconstudios.vestibule.core.system.DebugPhysicsRenderer;
 import com.lexxiconstudios.vestibule.core.system.ParticleRenderSystem;
 import com.lexxiconstudios.vestibule.core.system.PhysicsSystem;
@@ -31,6 +31,10 @@ import com.lexxiconstudios.vestibule.core.system.RenderingSystem;
 import com.lexxiconstudios.vestibule.core.util.DeltaProvider;
 
 public class Vestibule implements ApplicationListener {
+	{
+		// Screw launch args
+		System.setProperty("DebugPhysicsRenderer", "true");
+	}
 	Collection<Disposable> disposableResources = new ArrayList<>();
 	AssetManager assetManager;
 
@@ -60,8 +64,9 @@ public class Vestibule implements ApplicationListener {
 		mainViewPort = new FitViewport(200, 200, mainCamera);
 		mainViewPort.apply();
 
-		WorldConfiguration wcfg = new WorldConfigurationBuilder().with(new PhysicsSystem(), new RenderingSystem(),
-				new ParticleRenderSystem(), new DebugPhysicsRenderer()).build();
+		WorldConfiguration wcfg = new WorldConfigurationBuilder().with(
+				new ClearScreenSystem(), new PhysicsSystem(),
+				new RenderingSystem(), new ParticleRenderSystem(), new DebugPhysicsRenderer()).build();
 		com.badlogic.gdx.physics.box2d.World b2dWorld = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0),
 				true);
 		wcfg.register(b2dWorld);
@@ -72,11 +77,10 @@ public class Vestibule implements ApplicationListener {
 		wcfg.register(new DeltaProvider(() -> Gdx.graphics.getDeltaTime()));
 
 		world = new World(wcfg);
-		world.getSystem(DebugPhysicsRenderer.class).setEnable(true);
 
 		new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, 0);
-		 new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, 2.1f);
-		 new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, -2.1f);
+		new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, 2.1f);
+		new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, -2.1f);
 	}
 
 	@Override
@@ -88,8 +92,6 @@ public class Vestibule implements ApplicationListener {
 	public void render() {
 		elapsed += Gdx.graphics.getDeltaTime();
 		world.delta = Gdx.graphics.getDeltaTime();
-		Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 0);
-		Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 		world.process();
 	}
 
