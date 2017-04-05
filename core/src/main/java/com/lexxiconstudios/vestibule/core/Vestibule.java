@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.artemis.BaseSystem;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
@@ -47,51 +48,50 @@ public class Vestibule implements ApplicationListener {
 	float elapsed;
 
 	World world;
-	
+
 	Viewport viewport;
 
 	@Override
 	public void create() {
 		Box2D.init();
-		assetManager = new AssetManager();
-		disposableResources.add(assetManager);
 		AssetDescriptor<Texture> tex = new AssetDescriptor<>("64_32.png", Texture.class);
 		AssetDescriptor<ParticleEffect> pef = new AssetDescriptor<>("effects/defaultFire.p", ParticleEffect.class);
+		
+		assetManager = new AssetManager();
+		disposableResources.add(assetManager);
 		assetManager.load(pef);
 		assetManager.load(tex);
 		assetManager.finishLoading();
-		texture = assetManager.get(tex);
+		
 		batch = new SpriteBatch();
 		disposableResources.add(batch);
-
-		RenderBatchingSystem renderBatcher = new RenderBatchingSystem();
-
-		WorldConfiguration wcfg = new WorldConfigurationBuilder()
-				.with(
-						new CameraSystem(200, 200),
-						new EntityCameraSystem(),
-						new ClearScreenSystem(), 
-						new PhysicsSystem(), 
-						renderBatcher, 
-						new RenderingSystem(renderBatcher),
-						new ParticleRenderSystem(),
-						new DebugPhysicsRenderer())
-				.build();
-		com.badlogic.gdx.physics.box2d.World b2dWorld = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0),true);
-		wcfg.register(b2dWorld);
+		com.badlogic.gdx.physics.box2d.World b2dWorld = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0),
+				true);
 		disposableResources.add(b2dWorld);
+
+		WorldConfiguration wcfg = new WorldConfigurationBuilder().with(buildCameraSystems()).with(new PhysicsSystem())
+				.with(buildRenderingSystems()).build();
+		wcfg.register(b2dWorld);
 		wcfg.register(batch);
 		wcfg.register(assetManager);
 
 		world = new World(wcfg);
-		int id = world.create();
-		world.edit(id).create(Pos.class);
-		world.edit(id).create(Camera.class);
+		new BaseEntFac(assetManager).makeCamera(world);
 		new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, 0);
 		new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, 2.1f);
 		new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, -2.1f);
-		
+
 		viewport = new FitViewport(200, 200, world.getSystem(CameraSystem.class).camera);
+	}
+
+	private BaseSystem[] buildCameraSystems() {
+		return new BaseSystem[] { new CameraSystem(200, 200), new EntityCameraSystem() };
+	}
+
+	private BaseSystem[] buildRenderingSystems() {
+		RenderBatchingSystem renderBatcher = new RenderBatchingSystem();
+		return new BaseSystem[] { new ClearScreenSystem(), renderBatcher, new RenderingSystem(renderBatcher),
+				new ParticleRenderSystem(renderBatcher), new DebugPhysicsRenderer() };
 	}
 
 	@Override

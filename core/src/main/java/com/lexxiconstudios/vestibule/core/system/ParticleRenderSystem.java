@@ -2,17 +2,18 @@ package com.lexxiconstudios.vestibule.core.system;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
-import com.artemis.Entity;
 import com.artemis.annotations.Wire;
-import com.artemis.systems.EntityProcessingSystem;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.lexxiconstudios.vestibule.core.component.ParticleEffComponent;
 
 import net.mostlyoriginal.api.component.basic.Angle;
 import net.mostlyoriginal.api.component.basic.Pos;
+import net.mostlyoriginal.api.component.graphics.Renderable;
+import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
+import net.mostlyoriginal.api.system.graphics.RenderBatchingSystem;
 
-public class ParticleRenderSystem extends EntityProcessingSystem {
+public class ParticleRenderSystem extends DeferredEntityProcessingSystem  {
 
 	ComponentMapper<ParticleEffComponent> effectMapper;
 	ComponentMapper<Pos> positionMapper;
@@ -21,8 +22,8 @@ public class ParticleRenderSystem extends EntityProcessingSystem {
 	@Wire
 	SpriteBatch spriteBatch;
 
-	public ParticleRenderSystem() {
-		super(Aspect.all(ParticleEffComponent.class, Pos.class));
+	public ParticleRenderSystem(RenderBatchingSystem renderBatcher) {
+		super(Aspect.all(ParticleEffComponent.class, Pos.class, Renderable.class), renderBatcher);
 	}
 
 	@Override
@@ -38,7 +39,7 @@ public class ParticleRenderSystem extends EntityProcessingSystem {
 	}
 
 	@Override
-	protected void process(Entity e) {
+	protected void process(int e) {
 		ParticleEffComponent effComp = effectMapper.get(e);
 		ParticleEffect effect = effComp.getParticleEffect();
 		Angle a = angleMapper.getSafe(e, Angle.NONE);

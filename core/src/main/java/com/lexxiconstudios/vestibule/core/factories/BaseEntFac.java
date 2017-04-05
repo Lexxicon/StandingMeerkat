@@ -18,6 +18,7 @@ import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
 
 import net.mostlyoriginal.api.component.basic.Angle;
 import net.mostlyoriginal.api.component.basic.Pos;
+import net.mostlyoriginal.api.component.camera.Camera;
 import net.mostlyoriginal.api.component.graphics.Renderable;
 
 public class BaseEntFac {
@@ -26,6 +27,14 @@ public class BaseEntFac {
 	public BaseEntFac(AssetManager am) {
 		this.am = am;
 	}
+	
+	public int makeCamera(World world){
+		int id = world.create();
+		world.edit(id).create(Pos.class);
+		world.edit(id).create(Camera.class);
+		return id;
+	}
+	
 	public Entity makeThing(World world, AssetDescriptor<Texture> texture, AssetDescriptor<ParticleEffect> pef, float x, float y) {
 		int entityID = world.create();
 		world.edit(entityID).create(Renderable.class);
