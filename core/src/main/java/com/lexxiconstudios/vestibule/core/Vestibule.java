@@ -28,8 +28,6 @@ import com.lexxiconstudios.vestibule.core.system.ParticleRenderSystem;
 import com.lexxiconstudios.vestibule.core.system.PhysicsSystem;
 import com.lexxiconstudios.vestibule.core.system.RenderingSystem;
 
-import net.mostlyoriginal.api.component.basic.Pos;
-import net.mostlyoriginal.api.component.camera.Camera;
 import net.mostlyoriginal.api.system.camera.CameraSystem;
 import net.mostlyoriginal.api.system.camera.EntityCameraSystem;
 import net.mostlyoriginal.api.system.graphics.RenderBatchingSystem;
@@ -85,7 +83,7 @@ public class Vestibule implements ApplicationListener {
 	}
 
 	private BaseSystem[] buildCameraSystems() {
-		return new BaseSystem[] { new CameraSystem(200, 200), new EntityCameraSystem() };
+		return new BaseSystem[] { new CameraSystem(1000, 1000), new EntityCameraSystem() };
 	}
 
 	private BaseSystem[] buildRenderingSystems() {

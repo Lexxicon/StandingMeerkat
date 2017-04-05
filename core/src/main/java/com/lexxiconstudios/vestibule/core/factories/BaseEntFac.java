@@ -72,10 +72,10 @@ public class BaseEntFac {
 		body.applyTorque(10, true);
 		pb.setB2dBody(body);
 		
-		ParticleEffect peff = am.get(pef);
-		ParticleEffComponent pefc = world.edit(entityID).create(ParticleEffComponent.class);
-		pefc.setOffset(new Pos());
-		pefc.setParticleEffect(peff);
+//		ParticleEffect peff = am.get(pef);
+//		ParticleEffComponent pefc = world.edit(entityID).create(ParticleEffComponent.class);
+//		pefc.setOffset(new Pos());
+//		pefc.setParticleEffect(peff);
 		return null;
 	}
 
