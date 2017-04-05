@@ -11,11 +11,10 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.utils.Disposable;
@@ -23,12 +22,17 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.lexxiconstudios.vestibule.core.exceptions.MultiException;
 import com.lexxiconstudios.vestibule.core.factories.BaseEntFac;
-import com.lexxiconstudios.vestibule.core.system.ClearScreenSystem;
 import com.lexxiconstudios.vestibule.core.system.DebugPhysicsRenderer;
 import com.lexxiconstudios.vestibule.core.system.ParticleRenderSystem;
 import com.lexxiconstudios.vestibule.core.system.PhysicsSystem;
 import com.lexxiconstudios.vestibule.core.system.RenderingSystem;
-import com.lexxiconstudios.vestibule.core.util.DeltaProvider;
+
+import net.mostlyoriginal.api.component.basic.Pos;
+import net.mostlyoriginal.api.component.camera.Camera;
+import net.mostlyoriginal.api.system.camera.CameraSystem;
+import net.mostlyoriginal.api.system.camera.EntityCameraSystem;
+import net.mostlyoriginal.api.system.graphics.RenderBatchingSystem;
+import net.mostlyoriginal.api.system.render.ClearScreenSystem;
 
 public class Vestibule implements ApplicationListener {
 	{
@@ -43,8 +47,8 @@ public class Vestibule implements ApplicationListener {
 	float elapsed;
 
 	World world;
-	Viewport mainViewPort;
-	Camera mainCamera;
+	
+	Viewport viewport;
 
 	@Override
 	public void create() {
@@ -60,38 +64,46 @@ public class Vestibule implements ApplicationListener {
 		batch = new SpriteBatch();
 		disposableResources.add(batch);
 
-		mainCamera = new OrthographicCamera();
-		mainViewPort = new FitViewport(200, 200, mainCamera);
-		mainViewPort.apply();
+		RenderBatchingSystem renderBatcher = new RenderBatchingSystem();
 
-		WorldConfiguration wcfg = new WorldConfigurationBuilder().with(
-				new ClearScreenSystem(), new PhysicsSystem(),
-				new RenderingSystem(), new ParticleRenderSystem(), new DebugPhysicsRenderer()).build();
-		com.badlogic.gdx.physics.box2d.World b2dWorld = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0),
-				true);
+		WorldConfiguration wcfg = new WorldConfigurationBuilder()
+				.with(
+						new CameraSystem(200, 200),
+						new EntityCameraSystem(),
+						new ClearScreenSystem(), 
+						new PhysicsSystem(), 
+						renderBatcher, 
+						new RenderingSystem(renderBatcher),
+						new ParticleRenderSystem(),
+						new DebugPhysicsRenderer())
+				.build();
+		com.badlogic.gdx.physics.box2d.World b2dWorld = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0),true);
 		wcfg.register(b2dWorld);
 		disposableResources.add(b2dWorld);
 		wcfg.register(batch);
-		wcfg.register(mainViewPort.getCamera());
 		wcfg.register(assetManager);
-		wcfg.register(new DeltaProvider(() -> Gdx.graphics.getDeltaTime()));
 
 		world = new World(wcfg);
-
+		int id = world.create();
+		world.edit(id).create(Pos.class);
+		world.edit(id).create(Camera.class);
 		new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, 0);
 		new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, 2.1f);
 		new BaseEntFac(assetManager).makeThing(world, tex, pef, -1, -2.1f);
+		
+		viewport = new FitViewport(200, 200, world.getSystem(CameraSystem.class).camera);
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		mainViewPort.update(width, height);
+		viewport.update(width, height);
 	}
 
 	@Override
 	public void render() {
-		elapsed += Gdx.graphics.getDeltaTime();
-		world.delta = Gdx.graphics.getDeltaTime();
+		float delta = MathUtils.clamp(Gdx.graphics.getDeltaTime(), 0, 1 / 15f);
+		elapsed += delta;
+		world.delta = delta;
 		world.process();
 	}
 

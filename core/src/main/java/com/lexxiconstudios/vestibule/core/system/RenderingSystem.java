@@ -2,33 +2,38 @@ package com.lexxiconstudios.vestibule.core.system;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
-import com.artemis.Entity;
 import com.artemis.annotations.Wire;
-import com.artemis.systems.EntityProcessingSystem;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.lexxiconstudios.vestibule.core.component.Position;
 import com.lexxiconstudios.vestibule.core.component.LXSprite;
 
-public class RenderingSystem extends EntityProcessingSystem {
+import net.mostlyoriginal.api.component.basic.Angle;
+import net.mostlyoriginal.api.component.basic.Pos;
+import net.mostlyoriginal.api.component.graphics.Renderable;
+import net.mostlyoriginal.api.system.camera.CameraSystem;
+import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
+import net.mostlyoriginal.api.system.graphics.RenderBatchingSystem;
+
+public class RenderingSystem extends DeferredEntityProcessingSystem {
 
 	@Wire
 	private SpriteBatch batch;
 	@Wire
-	private OrthographicCamera mainCamera;
+	private CameraSystem cameraSystem;
 
-	ComponentMapper<Position> positionMapper;
+	ComponentMapper<Pos> positionMapper;
+	ComponentMapper<Angle> angleMapper;
 	ComponentMapper<LXSprite> spriteMapper;
+	RenderBatchingSystem as;
 
-	public RenderingSystem() {
-		super(Aspect.all(Position.class, LXSprite.class));
+	public RenderingSystem(RenderBatchingSystem renderBatcher) {
+		super(Aspect.all(Pos.class, LXSprite.class, Renderable.class), renderBatcher);
 	}
 
 	@Override
 	protected void begin() {
 		super.begin();
 		batch.begin();
-		batch.setProjectionMatrix(mainCamera.combined);
+		batch.setProjectionMatrix(cameraSystem.camera.combined);
 	}
 
 	@Override
@@ -38,13 +43,15 @@ public class RenderingSystem extends EntityProcessingSystem {
 	}
 
 	@Override
-	protected void process(Entity e) {
+	protected void process(int e) {
 		LXSprite sprite = spriteMapper.get(e);
-		Position pos = positionMapper.get(e);
+		Pos pos = positionMapper.get(e);
+		Angle a = angleMapper.getSafe(e, Angle.NONE);
 		sprite.get().setPosition(pos.getX(), pos.getY());
 		sprite.get().setOrigin(0, 0);
-		sprite.get().rotate(pos.getRotation() - sprite.get().getRotation());
+		sprite.get().rotate(a.rotation - sprite.get().getRotation());
 		sprite.get().draw(batch);
+
 	}
 
 }

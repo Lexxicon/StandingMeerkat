@@ -2,7 +2,6 @@ package com.lexxiconstudios.vestibule.core.factories;
 
 import com.artemis.Entity;
 import com.artemis.World;
-import com.artemis.utils.EntityBuilder;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,7 +15,10 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.lexxiconstudios.vestibule.core.component.LXSprite;
 import com.lexxiconstudios.vestibule.core.component.ParticleEffComponent;
 import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
-import com.lexxiconstudios.vestibule.core.component.Position;
+
+import net.mostlyoriginal.api.component.basic.Angle;
+import net.mostlyoriginal.api.component.basic.Pos;
+import net.mostlyoriginal.api.component.graphics.Renderable;
 
 public class BaseEntFac {
 	AssetManager am;
@@ -25,10 +27,15 @@ public class BaseEntFac {
 		this.am = am;
 	}
 	public Entity makeThing(World world, AssetDescriptor<Texture> texture, AssetDescriptor<ParticleEffect> pef, float x, float y) {
-
-		LXSprite sprite = new LXSprite();
+		int entityID = world.create();
+		world.edit(entityID).create(Renderable.class);
+		world.edit(entityID).create(Pos.class);
+		world.edit(entityID).create(Angle.class);
+		
+		LXSprite sprite = world.edit(entityID).create(LXSprite.class);
 		sprite.set(new Sprite(am.get(texture), 0, 0, 64, 32));
-		PhysicsBody pb = new PhysicsBody();
+		
+		PhysicsBody pb = world.edit(entityID).create(PhysicsBody.class);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
 		// Set our body's starting position in the world
@@ -55,15 +62,12 @@ public class BaseEntFac {
 		body.createFixture(fixtureDef);
 		body.applyTorque(10, true);
 		pb.setB2dBody(body);
-
-		Position pos = new Position();
 		
 		ParticleEffect peff = am.get(pef);
-		ParticleEffComponent pefc = new ParticleEffComponent();
-		pefc.setOffset(new Position());
+		ParticleEffComponent pefc = world.edit(entityID).create(ParticleEffComponent.class);
+		pefc.setOffset(new Pos());
 		pefc.setParticleEffect(peff);
-		
-		return new EntityBuilder(world).with(sprite, pos, pefc, pb).build();
+		return null;
 	}
 
 }

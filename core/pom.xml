@@ -26,6 +26,11 @@
 			<groupId>com.badlogicgames.gdx</groupId>
 			<artifactId>gdx-box2d</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>net.mostlyoriginal.artemis-odb</groupId>
+			<artifactId>contrib-jam</artifactId>
+			<version>1.2.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>

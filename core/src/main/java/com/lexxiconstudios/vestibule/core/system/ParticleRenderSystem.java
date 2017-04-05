@@ -8,23 +8,21 @@ import com.artemis.systems.EntityProcessingSystem;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.lexxiconstudios.vestibule.core.component.ParticleEffComponent;
-import com.lexxiconstudios.vestibule.core.component.Position;
-import com.lexxiconstudios.vestibule.core.util.DeltaProvider;
+
+import net.mostlyoriginal.api.component.basic.Angle;
+import net.mostlyoriginal.api.component.basic.Pos;
 
 public class ParticleRenderSystem extends EntityProcessingSystem {
 
 	ComponentMapper<ParticleEffComponent> effectMapper;
-	ComponentMapper<Position> positionMapper;
+	ComponentMapper<Pos> positionMapper;
+	ComponentMapper<Angle> angleMapper;
 
-	private final Position emptyPosition = new Position();
-
-	@Wire
-	DeltaProvider deltaP;
 	@Wire
 	SpriteBatch spriteBatch;
 
 	public ParticleRenderSystem() {
-		super(Aspect.all(ParticleEffComponent.class));
+		super(Aspect.all(ParticleEffComponent.class, Pos.class));
 	}
 
 	@Override
@@ -43,12 +41,13 @@ public class ParticleRenderSystem extends EntityProcessingSystem {
 	protected void process(Entity e) {
 		ParticleEffComponent effComp = effectMapper.get(e);
 		ParticleEffect effect = effComp.getParticleEffect();
-		Position p = positionMapper.getSafe(e, emptyPosition);
-		effComp.applyRotation(p.getRotation());
+		Angle a = angleMapper.getSafe(e, Angle.NONE);
+		effComp.applyRotation(a.rotation);
 		if (effect.isComplete()) {
 			effect.start();
 		}
-		effect.update(deltaP.getDelta());
+		Pos p = positionMapper.get(e);
+		effect.update(world.delta);
 		effect.setPosition(p.getX() + effComp.getOffset().getX(), p.getY() + effComp.getOffset().getY());
 		effect.draw(spriteBatch);
 	}

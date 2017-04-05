@@ -8,7 +8,9 @@ import com.artemis.systems.IntervalEntityProcessingSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.World;
 import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
-import com.lexxiconstudios.vestibule.core.component.Position;
+
+import net.mostlyoriginal.api.component.basic.Angle;
+import net.mostlyoriginal.api.component.basic.Pos;
 
 public class PhysicsSystem extends IntervalEntityProcessingSystem {
 
@@ -19,7 +21,8 @@ public class PhysicsSystem extends IntervalEntityProcessingSystem {
 	public static final float WORLD_TO_BOX = 1f / BOX_TO_WORLD;
 
 	private ComponentMapper<PhysicsBody> bodyMapper;
-	private ComponentMapper<Position> positionMapper;
+	private ComponentMapper<Pos> positionMapper;
+	private ComponentMapper<Angle> angleMapper;;
 	@Wire
 	private World box2dWorld;
 
@@ -27,7 +30,7 @@ public class PhysicsSystem extends IntervalEntityProcessingSystem {
 	private long stepCount;
 
 	public PhysicsSystem() {
-		super(Aspect.all(PhysicsBody.class, Position.class), PHYSICS_TICK_RATE);
+		super(Aspect.all(PhysicsBody.class, Pos.class), PHYSICS_TICK_RATE);
 	}
 
 	@Override
@@ -53,10 +56,12 @@ public class PhysicsSystem extends IntervalEntityProcessingSystem {
 	@Override
 	protected void process(Entity e) {
 		PhysicsBody body = bodyMapper.get(e);
-		Position p = positionMapper.get(e);
-		p.setRotation(MathUtils.radiansToDegrees * body.getB2dBody().getAngle());
-		p.setX(body.getB2dBody().getPosition().x * BOX_TO_WORLD);
-		p.setY(body.getB2dBody().getPosition().y * BOX_TO_WORLD);
+		Pos p = positionMapper.get(e);
+		Angle a = angleMapper.getSafe(e, null);
+		if(a != null){
+			a.rotation = (MathUtils.radiansToDegrees * body.getB2dBody().getAngle());
+		}
+		p.set(body.getB2dBody().getPosition().cpy().scl(BOX_TO_WORLD));
 
 	}
 
