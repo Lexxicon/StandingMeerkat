@@ -1,6 +1,8 @@
 package com.lexxiconstudios.vestibule.core.factories;
 
-import com.artemis.Entity;
+import com.artemis.Archetype;
+import com.artemis.ArchetypeBuilder;
+import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
@@ -13,7 +15,8 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.lexxiconstudios.vestibule.core.component.LXSprite;
-import com.lexxiconstudios.vestibule.core.component.ParticleEffComponent;
+import com.lexxiconstudios.vestibule.core.component.Offset;
+import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
 import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
 
 import net.mostlyoriginal.api.component.basic.Angle;
@@ -22,29 +25,79 @@ import net.mostlyoriginal.api.component.camera.Camera;
 import net.mostlyoriginal.api.component.graphics.Renderable;
 
 public class BaseEntFac {
-	AssetManager am;
+	private final AssetManager am;
 	
-	public BaseEntFac(AssetManager am) {
+	private final World world;
+
+	private ComponentMapper<Pos> posMapper;
+	private ComponentMapper<Angle> angleMapper;
+	private ComponentMapper<LXSprite> spriteMapper;
+	private ComponentMapper<PhysicsBody> physBodyMapper;
+	private ComponentMapper<ParticleFXComponent> pfxMapper;
+	private ComponentMapper<Offset> offsetMapper;
+	
+	private final Archetype cameraArchtype;
+	private final Archetype thingArchtype;
+	private final Archetype particleFXArchtype;
+	
+	public BaseEntFac(AssetManager am, World world) {
+		this.world = world;
 		this.am = am;
+		
+		world.inject(this);
+		
+		this.cameraArchtype = buildCamArch();
+		this.thingArchtype = buildThingArch();
+		this.particleFXArchtype = buildParticleFX();
+		
 	}
 	
-	public int makeCamera(World world){
-		int id = world.create();
-		world.edit(id).create(Pos.class);
-		world.edit(id).create(Camera.class);
-		return id;
+	private Archetype buildParticleFX(){
+		return new ArchetypeBuilder()
+				.add(Offset.class)
+				.add(Renderable.class)
+				.add(Angle.class)
+				.add(ParticleFXComponent.class)
+				.build(world);
 	}
 	
-	public Entity makeThing(World world, AssetDescriptor<Texture> texture, AssetDescriptor<ParticleEffect> pef, float x, float y) {
-		int entityID = world.create();
-		world.edit(entityID).create(Renderable.class);
-		world.edit(entityID).create(Pos.class);
-		world.edit(entityID).create(Angle.class);
-		
-		LXSprite sprite = world.edit(entityID).create(LXSprite.class);
-		sprite.set(new Sprite(am.get(texture), 0, 0, 64, 32));
-		
-		PhysicsBody pb = world.edit(entityID).create(PhysicsBody.class);
+	private Archetype buildThingArch(){
+		return new ArchetypeBuilder()
+				.add(Pos.class)
+				.add(Renderable.class)
+				.add(Angle.class)
+				.add(LXSprite.class)
+				.add(PhysicsBody.class)
+				.build(world);
+	}
+	
+	private Archetype buildCamArch(){
+		return new ArchetypeBuilder()
+				.add(Pos.class)
+				.add(Camera.class)
+				.build(world);
+	}
+	
+	public int makeCamera(){
+		return world.create(cameraArchtype);
+	}
+	
+	public int makeParticleEffect(int parentId, AssetDescriptor<ParticleEffect> pef, float oX, float oY, float oRot, float scale, boolean loop){
+		int entityID = world.create(particleFXArchtype);
+		ParticleFXComponent pfxc = pfxMapper.get(entityID);
+		pfxc.setParentId(parentId);
+		pfxc.setLoop(loop);
+		pfxc.setParticleEffect(new ParticleEffect(am.get(pef)));
+		pfxc.getParticleEffect().scaleEffect(scale);
+		offsetMapper.get(entityID).set(oX, oY);
+		angleMapper.get(entityID).rotation = oRot;
+		return entityID;
+	}
+	
+	public int makeThing(AssetDescriptor<Texture> texture, AssetDescriptor<ParticleEffect> pef, float x, float y) {
+		int entityID = world.create(thingArchtype);
+		spriteMapper.get(entityID).set(new Sprite(am.get(texture), 0, 0, 64, 32));
+		posMapper.get(entityID).set(x, y);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
 		// Set our body's starting position in the world
@@ -70,13 +123,9 @@ public class BaseEntFac {
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
 		body.applyTorque(10, true);
-		pb.setB2dBody(body);
 		
-//		ParticleEffect peff = am.get(pef);
-//		ParticleEffComponent pefc = world.edit(entityID).create(ParticleEffComponent.class);
-//		pefc.setOffset(new Pos());
-//		pefc.setParticleEffect(peff);
-		return null;
+		physBodyMapper.get(entityID).setB2dBody(body);
+		return entityID;
 	}
 
 }

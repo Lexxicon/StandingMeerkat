@@ -1,24 +1,27 @@
 package com.lexxiconstudios.vestibule.core.component;
 
 import com.artemis.Component;
+import com.artemis.annotations.EntityId;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 
-import net.mostlyoriginal.api.component.basic.Angle;
-import net.mostlyoriginal.api.component.basic.Pos;
+public class ParticleFXComponent extends Component {
 
-public class ParticleEffComponent extends Component {
-
+	@EntityId int parentId = -1;
 	ParticleEffect particleEffect;
 	float[] lowMin, lowMax;
 	float[] highMin, highMax;
-	Pos position = new Pos();
-	Angle rotation = new Angle();
+	boolean loop = true;
+	
+	public void setLoop(boolean loop) {
+		this.loop = loop;
+	}
+	
+	public boolean isLoop() {
+		return loop;
+	}
 
-	public void applyRotation(float rot) {
-		if (position != null) {
-			rot += rotation.rotation;
-		}
+	public void setRotation(float rot) {
 		if (particleEffect != null) {
 			for (int i = 0; i < particleEffect.getEmitters().size; i++) {
 				ParticleEmitter em = (ParticleEmitter) ((Object[])particleEffect.getEmitters().items)[i];
@@ -28,12 +31,12 @@ public class ParticleEffComponent extends Component {
 		}
 	}
 
-	public Pos getOffset() {
-		return position;
+	public void setParentId(int parentId) {
+		this.parentId = parentId;
 	}
-
-	public void setOffset(Pos position) {
-		this.position = position;
+	
+	public int getParentId() {
+		return parentId;
 	}
 
 	public ParticleEffect getParticleEffect() {

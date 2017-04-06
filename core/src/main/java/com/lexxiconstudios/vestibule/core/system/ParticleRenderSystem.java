@@ -5,7 +5,8 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.lexxiconstudios.vestibule.core.component.ParticleEffComponent;
+import com.lexxiconstudios.vestibule.core.component.Offset;
+import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
 
 import net.mostlyoriginal.api.component.basic.Angle;
 import net.mostlyoriginal.api.component.basic.Pos;
@@ -13,17 +14,21 @@ import net.mostlyoriginal.api.component.graphics.Renderable;
 import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
 import net.mostlyoriginal.api.system.graphics.RenderBatchingSystem;
 
-public class ParticleRenderSystem extends DeferredEntityProcessingSystem  {
+public class ParticleRenderSystem extends DeferredEntityProcessingSystem {
 
-	ComponentMapper<ParticleEffComponent> effectMapper;
+	ComponentMapper<ParticleFXComponent> effectMapper;
 	ComponentMapper<Pos> positionMapper;
+	ComponentMapper<Offset> offsetMapper;
 	ComponentMapper<Angle> angleMapper;
+
+	private final Pos emptyPos = new Pos();
+	private final Offset emptyOffset = new Offset();
 
 	@Wire
 	SpriteBatch spriteBatch;
 
 	public ParticleRenderSystem(RenderBatchingSystem renderBatcher) {
-		super(Aspect.all(ParticleEffComponent.class, Pos.class, Renderable.class), renderBatcher);
+		super(Aspect.all(ParticleFXComponent.class, Renderable.class), renderBatcher);
 	}
 
 	@Override
@@ -40,16 +45,25 @@ public class ParticleRenderSystem extends DeferredEntityProcessingSystem  {
 
 	@Override
 	protected void process(int e) {
-		ParticleEffComponent effComp = effectMapper.get(e);
+		ParticleFXComponent effComp = effectMapper.get(e);
 		ParticleEffect effect = effComp.getParticleEffect();
-		Angle a = angleMapper.getSafe(e, Angle.NONE);
-		effComp.applyRotation(a.rotation);
 		if (effect.isComplete()) {
-			effect.start();
+			if (effComp.isLoop()) {
+				effect.start();
+			} else {
+				return;
+			}
 		}
-		Pos p = positionMapper.get(e);
+
+		Angle parentAngle = angleMapper.getSafe(effComp.getParentId(), Angle.NONE);
+		Angle angleOffset = angleMapper.getSafe(e, Angle.NONE);
+		effComp.setRotation(angleOffset.rotation + parentAngle.rotation);
+
+		Pos parentPos = positionMapper.getSafe(effComp.getParentId(), emptyPos);
+		Offset offsetPos = offsetMapper.getSafe(e, emptyOffset);
+		effect.setPosition(parentPos.getX() + offsetPos.getX(), parentPos.getY() + offsetPos.getY());
+
 		effect.update(world.delta);
-		effect.setPosition(p.getX() + effComp.getOffset().getX(), p.getY() + effComp.getOffset().getY());
 		effect.draw(spriteBatch);
 	}
 
