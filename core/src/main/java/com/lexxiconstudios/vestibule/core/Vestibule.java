@@ -21,11 +21,13 @@ import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.lexxiconstudios.vestibule.core.component.PlayerControlled;
 import com.lexxiconstudios.vestibule.core.exceptions.MultiException;
 import com.lexxiconstudios.vestibule.core.factories.BaseEntFac;
 import com.lexxiconstudios.vestibule.core.system.DebugPhysicsRenderer;
 import com.lexxiconstudios.vestibule.core.system.ParticleRenderSystem;
 import com.lexxiconstudios.vestibule.core.system.PhysicsSystem;
+import com.lexxiconstudios.vestibule.core.system.PlayerMovementSystem;
 import com.lexxiconstudios.vestibule.core.system.RenderingSystem;
 
 import net.mostlyoriginal.api.system.camera.CameraSystem;
@@ -67,7 +69,7 @@ public class Vestibule implements ApplicationListener {
 				true);
 		disposableResources.add(b2dWorld);
 
-		WorldConfiguration wcfg = new WorldConfigurationBuilder().with(buildCameraSystems()).with(new PhysicsSystem())
+		WorldConfiguration wcfg = new WorldConfigurationBuilder().with(buildCameraSystems()).with(new PlayerMovementSystem()).with(new PhysicsSystem())
 				.with(buildRenderingSystems()).build();
 		wcfg.register(b2dWorld);
 		wcfg.register(batch);
@@ -76,11 +78,16 @@ public class Vestibule implements ApplicationListener {
 		world = new World(wcfg);
 		BaseEntFac entFac = new BaseEntFac(assetManager, world);
 		entFac.makeCamera();
-		int id = entFac.makeThing(tex, pef, -1, 0);
-		entFac.makeThing(tex, pef, -1, 2.1f);
-		entFac.makeThing(tex, pef, -1, -2.1f);
-		entFac.makeParticleEffect(id, pef, 32, 32, 180, 1f, true);
-		entFac.makeParticleEffect(id, pef, -1, 0, -1, .5f, true);
+//		int id = entFac.makeThing(tex, pef, -1, 0);
+//		world.edit(id).add(new PlayerControlled());
+//		entFac.makeThing(tex, pef, -1, 2.1f);
+//		entFac.makeThing(tex, pef, -1, -2.1f);
+//		entFac.makeParticleEffect(id, pef, 1, 1, 180, 1f, true);
+//		entFac.makeParticleEffect(id, pef, -1, 0, -1, .5f, true);
+		entFac.makeWall(-3f, -3f, 6, .1f);
+		entFac.makeWall( 3f, -3f, .1f, 6);
+		entFac.makeWall( 3f,  3f, .1f, 6);
+		entFac.makeWall(-3f,  3f, 6, .1f);
 		viewport = new FitViewport(200, 200, world.getSystem(CameraSystem.class).camera);
 	}
 

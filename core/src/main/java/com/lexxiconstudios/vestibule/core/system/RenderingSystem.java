@@ -4,6 +4,7 @@ import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.lexxiconstudios.vestibule.core.component.LXSprite;
 
 import net.mostlyoriginal.api.component.basic.Angle;
@@ -45,9 +46,9 @@ public class RenderingSystem extends DeferredEntityProcessingSystem {
 	@Override
 	protected void process(int e) {
 		LXSprite sprite = spriteMapper.get(e);
-		Pos pos = positionMapper.get(e);
+		Vector2 v2 = positionMapper.get(e).xy.cpy().scl(PhysicsSystem.BOX_TO_WORLD);
 		Angle a = angleMapper.getSafe(e, Angle.NONE);
-		sprite.get().setPosition(pos.getX(), pos.getY());
+		sprite.get().setPosition(v2.x, v2.y);
 		sprite.get().setOrigin(0, 0);
 		sprite.get().rotate(a.rotation - sprite.get().getRotation());
 		sprite.get().draw(batch);

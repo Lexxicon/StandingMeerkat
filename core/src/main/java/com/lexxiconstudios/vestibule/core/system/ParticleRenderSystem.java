@@ -62,8 +62,8 @@ public class ParticleRenderSystem extends DeferredEntityProcessingSystem {
 	
 		Pos parentPos = positionMapper.getSafe(effComp.getParentId(), emptyPos);
 		Offset offsetPos = offsetMapper.getSafe(e, emptyOffset);
-		Vector2 rotatedOffset = offsetPos.xy.cpy().rotate(parentAngle.rotation);
-		effect.setPosition(parentPos.getX() + rotatedOffset.x, parentPos.getY() + rotatedOffset.y);
+		Vector2 rotatedOffset = offsetPos.xy.cpy().rotate(parentAngle.rotation).add(parentPos.xy).scl(PhysicsSystem.BOX_TO_WORLD);
+		effect.setPosition(rotatedOffset.x, rotatedOffset.y);
 		
 		effect.update(world.delta);
 		effect.draw(spriteBatch);

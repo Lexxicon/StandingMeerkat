@@ -62,7 +62,7 @@ public class PhysicsSystem extends IntervalEntitySystem {
 		if (a != null) {
 			a.rotation = (MathUtils.radiansToDegrees * body.getB2dBody().getAngle());
 		}
-		p.set(body.getB2dBody().getPosition().cpy().scl(BOX_TO_WORLD));
+		p.set(body.getB2dBody().getPosition());
 
 	}
 
