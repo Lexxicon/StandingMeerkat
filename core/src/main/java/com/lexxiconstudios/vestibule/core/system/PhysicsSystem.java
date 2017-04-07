@@ -83,10 +83,6 @@ public class PhysicsSystem extends IntervalEntitySystem {
 			stepCount++;
 		} while ((actualDelta -= PHYSICS_TICK_RATE) > PHYSICS_TICK_RATE);
 		accDelta = actualDelta;
-		if(System.currentTimeMillis() - startTime > 1_000){
-			System.out.println(stepCount * PHYSICS_TICK_RATE);
-			startTime = System.currentTimeMillis();
-		}
 	}
 
 }

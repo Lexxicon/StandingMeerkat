@@ -5,6 +5,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.lexxiconstudios.vestibule.core.component.Offset;
 import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
 
@@ -58,11 +59,12 @@ public class ParticleRenderSystem extends DeferredEntityProcessingSystem {
 		Angle parentAngle = angleMapper.getSafe(effComp.getParentId(), Angle.NONE);
 		Angle angleOffset = angleMapper.getSafe(e, Angle.NONE);
 		effComp.setRotation(angleOffset.rotation + parentAngle.rotation);
-
+	
 		Pos parentPos = positionMapper.getSafe(effComp.getParentId(), emptyPos);
 		Offset offsetPos = offsetMapper.getSafe(e, emptyOffset);
-		effect.setPosition(parentPos.getX() + offsetPos.getX(), parentPos.getY() + offsetPos.getY());
-
+		Vector2 rotatedOffset = offsetPos.xy.cpy().rotate(parentAngle.rotation);
+		effect.setPosition(parentPos.getX() + rotatedOffset.x, parentPos.getY() + rotatedOffset.y);
+		
 		effect.update(world.delta);
 		effect.draw(spriteBatch);
 	}

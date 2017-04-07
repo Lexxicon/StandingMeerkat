@@ -79,8 +79,8 @@ public class Vestibule implements ApplicationListener {
 		int id = entFac.makeThing(tex, pef, -1, 0);
 		entFac.makeThing(tex, pef, -1, 2.1f);
 		entFac.makeThing(tex, pef, -1, -2.1f);
-		entFac.makeParticleEffect(id, pef, 1, 1, 1, .5f, true);
-//		entFac.makeParticleEffect(id, pef, -1, 0, -1, 1f, true);
+		entFac.makeParticleEffect(id, pef, 32, 32, 180, 1f, true);
+		entFac.makeParticleEffect(id, pef, -1, 0, -1, .5f, true);
 		viewport = new FitViewport(200, 200, world.getSystem(CameraSystem.class).camera);
 	}
 
