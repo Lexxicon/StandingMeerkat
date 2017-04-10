@@ -78,15 +78,16 @@ public class Vestibule implements ApplicationListener {
 		world = new World(wcfg);
 		BaseEntFac entFac = new BaseEntFac(assetManager, world);
 		entFac.makeCamera();
-//		int id = entFac.makeThing(tex, pef, -1, 0);
-//		world.edit(id).add(new PlayerControlled());
+		int id = entFac.makeThing(tex, pef, -1, 0);
+		world.edit(id).add(new PlayerControlled());
 //		entFac.makeThing(tex, pef, -1, 2.1f);
 //		entFac.makeThing(tex, pef, -1, -2.1f);
-//		entFac.makeParticleEffect(id, pef, 1, 1, 180, 1f, true);
-//		entFac.makeParticleEffect(id, pef, -1, 0, -1, .5f, true);
+		entFac.makeParticleEffect(id, pef, 1, 1, 180, 1f, true);
+		entFac.makeParticleEffect(id, pef, -1, 0, -1, .5f, true);
+		
 		entFac.makeWall(-3f, -3f, 6, .1f);
 		entFac.makeWall( 3f, -3f, .1f, 6);
-		entFac.makeWall( 3f,  3f, .1f, 6);
+		entFac.makeWall( -3f,  -3f, .1f, 6);
 		entFac.makeWall(-3f,  3f, 6, .1f);
 		viewport = new FitViewport(200, 200, world.getSystem(CameraSystem.class).camera);
 	}

@@ -19,22 +19,21 @@ public class PlayerMovementSystem extends IteratingSystem {
 
 	@Override
 	protected void process(int entityId) {
-		float xVel = 0, yVel = 0;
-
+		Vector2 dir = new Vector2();
+		
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			yVel += 1;
+			dir.y += 1;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			xVel -= 1;
+			dir.x -= 1;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-			yVel -= 1;
+			dir.y -= 1;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-			xVel += 1;
+			dir.x += 1;
 		}
-
-		bodyMapper.get(entityId).getB2dBody().setLinearVelocity(new Vector2(xVel, yVel).nor().scl(2.5f));
+		bodyMapper.get(entityId).getB2dBody().applyForceToCenter(dir.nor().scl(2.5f), true);
 	}
 
 }

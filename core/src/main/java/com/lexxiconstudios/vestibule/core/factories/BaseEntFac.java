@@ -4,16 +4,19 @@ import com.artemis.Archetype;
 import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;
 import com.artemis.World;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.joints.FrictionJointDef;
 import com.lexxiconstudios.vestibule.core.component.LXSprite;
 import com.lexxiconstudios.vestibule.core.component.Offset;
 import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
@@ -25,9 +28,6 @@ import net.mostlyoriginal.api.component.camera.Camera;
 import net.mostlyoriginal.api.component.graphics.Renderable;
 
 public class BaseEntFac {
-	private final AssetManager am;
-
-	private final World world;
 
 	private ComponentMapper<Pos> posMapper;
 	private ComponentMapper<Angle> angleMapper;
@@ -36,22 +36,28 @@ public class BaseEntFac {
 	private ComponentMapper<ParticleFXComponent> pfxMapper;
 	private ComponentMapper<Offset> offsetMapper;
 
+	@Wire
+	private com.badlogic.gdx.physics.box2d.World b2dWorld;
+	@Wire
+	private AssetManager am;
+	private World world;
+
 	private final Archetype wallType;
 	private final Archetype cameraArchtype;
 	private final Archetype thingArchtype;
 	private final Archetype particleFXArchtype;
 
-	public BaseEntFac(AssetManager am, World world) {
-		this.world = world;
-		this.am = am;
+	private Body global;
 
+	public BaseEntFac(AssetManager am, World world) {
 		world.inject(this);
 
+		this.world = world;
 		this.cameraArchtype = buildCamArch();
 		this.thingArchtype = buildThingArch();
 		this.particleFXArchtype = buildParticleFX();
 		this.wallType = buildWallArch();
-
+		this.global = b2dWorld.createBody(new BodyDef());
 	}
 
 	private Archetype buildWallArch() {
@@ -89,7 +95,7 @@ public class BaseEntFac {
 		return entityID;
 	}
 
-	public int makeWall(float x, float y, float w, float h){
+	public int makeWall(float x, float y, float w, float h) {
 		int entityID = world.create(wallType);
 
 		BodyDef bodyDef = new BodyDef();
@@ -101,10 +107,7 @@ public class BaseEntFac {
 		Body body = b2d.createBody(bodyDef);
 
 		PolygonShape poly = new PolygonShape();
-		poly.set(new float[] { 0, 0,
-				w, 0, 
-				w, h, 
-				0, h });
+		poly.set(new float[] { 0, 0, w, 0, w, h, 0, h });
 
 		// Create a fixture definition to apply our shape to
 		FixtureDef fixtureDef = new FixtureDef();
@@ -128,13 +131,12 @@ public class BaseEntFac {
 		bodyDef.type = BodyType.DynamicBody;
 		// Set our body's starting position in the world
 		bodyDef.position.set(x, y);
-		com.badlogic.gdx.physics.box2d.World w = world.getRegistered(com.badlogic.gdx.physics.box2d.World.class);
+
 		// Create our body in the world using our body definition
-		Body body = w.createBody(bodyDef);
+		Body body = b2dWorld.createBody(bodyDef);
 
 		PolygonShape poly = new PolygonShape();
 		poly.set(new float[] { 0, 0, 2f, 0, 2f, 1f, 0, 1f });
-
 		// Create a fixture definition to apply our shape to
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = poly;
@@ -147,6 +149,12 @@ public class BaseEntFac {
 		body.applyTorque(10, true);
 
 		physBodyMapper.get(entityID).setB2dBody(body);
+		FrictionJointDef fjd = new FrictionJointDef();
+		fjd.initialize(body, global, new Vector2(0, .5f));
+		fjd.maxForce = 15;
+		fjd.maxTorque = 1;
+		b2dWorld.createJoint(fjd);
+
 		return entityID;
 	}
 
