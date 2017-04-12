@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 
 public class ParticleFXComponent extends Component {
 
-	@EntityId int parentId = -1;
+	@EntityId public int parentId = -1;
 	ParticleEffect particleEffect;
 	float[] lowMin, lowMax;
 	float[] highMin, highMax;

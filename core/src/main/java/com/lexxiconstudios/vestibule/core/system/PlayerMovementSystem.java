@@ -6,21 +6,21 @@ import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
-import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
+import com.lexxiconstudios.vestibule.core.component.PhysicsForce;
 import com.lexxiconstudios.vestibule.core.component.PlayerControlled;
 
 public class PlayerMovementSystem extends IteratingSystem {
 
-	ComponentMapper<PhysicsBody> bodyMapper;
+	ComponentMapper<PhysicsForce> moveMapper;
 
 	public PlayerMovementSystem() {
-		super(Aspect.all(PlayerControlled.class, PhysicsBody.class));
+		super(Aspect.all(PlayerControlled.class, PhysicsForce.class));
 	}
 
 	@Override
 	protected void process(int entityId) {
 		Vector2 dir = new Vector2();
-		
+
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			dir.y += 1;
 		}
@@ -33,8 +33,7 @@ public class PlayerMovementSystem extends IteratingSystem {
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
 			dir.x += 1;
 		}
-		
-		bodyMapper.get(entityId).getB2dBody().applyForceToCenter(dir.nor().scl(2.5f), true);
+		moveMapper.get(entityId).force.add(dir.nor().scl(10f * world.delta));
 	}
 
 }

@@ -8,6 +8,7 @@ import com.artemis.BaseSystem;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
+import com.artemis.link.EntityLinkManager;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
@@ -23,9 +24,11 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.lexxiconstudios.vestibule.core.component.PlayerControlled;
 import com.lexxiconstudios.vestibule.core.exceptions.MultiException;
 import com.lexxiconstudios.vestibule.core.factories.BaseEntFac;
-import com.lexxiconstudios.vestibule.core.system.PhysicsSystem;
 import com.lexxiconstudios.vestibule.core.system.PlayerMovementSystem;
 import com.lexxiconstudios.vestibule.core.system.camera.LXCameraSystem;
+import com.lexxiconstudios.vestibule.core.system.physics.ForceApplierSystem;
+import com.lexxiconstudios.vestibule.core.system.physics.PhysicsSystem;
+import com.lexxiconstudios.vestibule.core.system.physics.PositionSynchSystem;
 import com.lexxiconstudios.vestibule.core.system.rendering.DebugPhysicsRenderer;
 import com.lexxiconstudios.vestibule.core.system.rendering.ParticleRenderSystem;
 import com.lexxiconstudios.vestibule.core.system.rendering.RenderingSystem;
@@ -53,23 +56,30 @@ public class Vestibule implements ApplicationListener {
 	@Override
 	public void create() {
 		Box2D.init();
-		AssetDescriptor<Texture> tex = new AssetDescriptor<>("64_32.png", Texture.class);
-		AssetDescriptor<ParticleEffect> pef = new AssetDescriptor<>("effects/defaultFire.p", ParticleEffect.class);
-		
+		AssetDescriptor<Texture> tex = new AssetDescriptor<>("64_32.png",
+				Texture.class);
+		AssetDescriptor<ParticleEffect> pef = new AssetDescriptor<>(
+				"effects/defaultFire.p", ParticleEffect.class);
+
 		assetManager = new AssetManager();
 		disposableResources.add(assetManager);
 		assetManager.load(pef);
 		assetManager.load(tex);
 		assetManager.finishLoading();
-		
+
 		batch = new SpriteBatch();
 		disposableResources.add(batch);
 		com.badlogic.gdx.physics.box2d.World b2dWorld = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0),
 				true);
 		disposableResources.add(b2dWorld);
 
-		WorldConfiguration wcfg = new WorldConfigurationBuilder().with(buildCameraSystems()).with(new PlayerMovementSystem()).with(new PhysicsSystem())
+		WorldConfiguration wcfg = new WorldConfigurationBuilder()
+				.with(new EntityLinkManager())
+				.with(buildCameraSystems())
+				.with(new PlayerMovementSystem())
+				.with(buildPhysicsSystems())
 				.with(buildRenderingSystems()).build();
+
 		wcfg.register(b2dWorld);
 		wcfg.register(batch);
 		wcfg.register(assetManager);
@@ -78,25 +88,38 @@ public class Vestibule implements ApplicationListener {
 		BaseEntFac entFac = new BaseEntFac(assetManager, world);
 		entFac.makeCamera();
 		int id = entFac.makeThing(tex, -1, 0);
-		 entFac.makeThing(tex, -2, 0);
-		 entFac.makeThing(tex, 0, 0);
+		entFac.makeThing(tex, -2, 0);
+		entFac.makeThing(tex, 0, 0);
 		world.edit(id).add(new PlayerControlled());
-		entFac.makeParticleEffect(id, pef, 1, 1, 0, 1, true);
-		
+//		entFac.makeParticleEffect(id, pef, 1, 1, 0, 1, true);
+
 		entFac.makeWall(-3f, -3f, 6, .1f);
-		entFac.makeWall( 3f, -3f, .1f, 6);
-		entFac.makeWall( -3f,  -3f, .1f, 6);
-		entFac.makeWall(-3f,  3f, 6, .1f);
+		entFac.makeWall(3f, -3f, .1f, 6);
+		entFac.makeWall(-3f, -3f, .1f, 6);
+		entFac.makeWall(-3f, 3f, 6, .1f);
 	}
 
 	private BaseSystem[] buildCameraSystems() {
-		return new BaseSystem[] { new LXCameraSystem(1), new EntityCameraSystem() };
+		return new BaseSystem[] { new LXCameraSystem(1),
+				new EntityCameraSystem() };
+	}
+
+	private BaseSystem[] buildPhysicsSystems() {
+		PhysicsSystem physicsSystem = new PhysicsSystem();
+		return new BaseSystem[] {
+				physicsSystem,
+				new PositionSynchSystem(physicsSystem),
+				new ForceApplierSystem(physicsSystem) };
 	}
 
 	private BaseSystem[] buildRenderingSystems() {
 		RenderBatchingSystem renderBatcher = new RenderBatchingSystem();
-		return new BaseSystem[] { new ClearScreenSystem(), renderBatcher, new RenderingSystem(renderBatcher),
-				new ParticleRenderSystem(renderBatcher), new DebugPhysicsRenderer() };
+		return new BaseSystem[] {
+				new ClearScreenSystem(),
+				renderBatcher,
+				new RenderingSystem(renderBatcher),
+				new ParticleRenderSystem(renderBatcher),
+				new DebugPhysicsRenderer() };
 	}
 
 	@Override
@@ -129,14 +152,16 @@ public class Vestibule implements ApplicationListener {
 				d.dispose();
 			} catch (Throwable t) {
 				exceptions.add(t);
-				Gdx.app.getApplicationLogger().error("SHUTDOWN", "Exception while disposing " + d, t);
+				Gdx.app.getApplicationLogger().error("SHUTDOWN",
+						"Exception while disposing " + d, t);
 			}
 		}
 		try {
 			world.dispose();
 		} catch (Throwable t) {
 			exceptions.add(t);
-			Gdx.app.getApplicationLogger().error("SHUTDOWN", "Exception while disposing Artemis", t);
+			Gdx.app.getApplicationLogger().error("SHUTDOWN",
+					"Exception while disposing Artemis", t);
 		}
 		if (exceptions.size() > 0) {
 			throw new MultiException(exceptions);

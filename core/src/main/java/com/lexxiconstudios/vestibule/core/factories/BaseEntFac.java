@@ -21,6 +21,7 @@ import com.lexxiconstudios.vestibule.core.component.LXSprite;
 import com.lexxiconstudios.vestibule.core.component.Offset;
 import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
 import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
+import com.lexxiconstudios.vestibule.core.component.PhysicsForce;
 
 import net.mostlyoriginal.api.component.basic.Angle;
 import net.mostlyoriginal.api.component.basic.Pos;
@@ -71,6 +72,7 @@ public class BaseEntFac {
 
 	private Archetype buildThingArch() {
 		return new ArchetypeBuilder().add(Pos.class).add(Renderable.class).add(Angle.class).add(LXSprite.class)
+				.add(PhysicsForce.class)
 				.add(PhysicsBody.class).build(world);
 	}
 
@@ -115,6 +117,8 @@ public class BaseEntFac {
 		fixtureDef.density = 0.5f;
 		fixtureDef.friction = 0.4f;
 		fixtureDef.restitution = 0.6f; // Make it bounce a little bit
+		
+		fixtureDef.density = 1;
 
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
@@ -152,8 +156,8 @@ public class BaseEntFac {
 		physBodyMapper.get(entityID).setB2dBody(body);
 		FrictionJointDef fjd = new FrictionJointDef();
 		fjd.initialize(body, global, new Vector2(0, .5f));
-		fjd.maxForce = 15;
-		fjd.maxTorque = 1;
+		fjd.maxForce = 5;
+		fjd.maxTorque = 10;
 		b2dWorld.createJoint(fjd);
 
 		return entityID;
