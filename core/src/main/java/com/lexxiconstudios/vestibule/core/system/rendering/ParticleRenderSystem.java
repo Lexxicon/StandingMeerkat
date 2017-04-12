@@ -1,4 +1,4 @@
-package com.lexxiconstudios.vestibule.core.system;
+package com.lexxiconstudios.vestibule.core.system.rendering;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.lexxiconstudios.vestibule.core.component.Offset;
 import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
+import com.lexxiconstudios.vestibule.core.system.camera.LXCameraSystem;
 
 import net.mostlyoriginal.api.component.basic.Angle;
 import net.mostlyoriginal.api.component.basic.Pos;
@@ -27,7 +28,9 @@ public class ParticleRenderSystem extends DeferredEntityProcessingSystem {
 
 	@Wire
 	SpriteBatch spriteBatch;
-
+	@Wire
+	LXCameraSystem cameraSystem;
+	
 	public ParticleRenderSystem(RenderBatchingSystem renderBatcher) {
 		super(Aspect.all(ParticleFXComponent.class, Renderable.class), renderBatcher);
 	}
@@ -50,6 +53,7 @@ public class ParticleRenderSystem extends DeferredEntityProcessingSystem {
 		ParticleEffect effect = effComp.getParticleEffect();
 		if (effect.isComplete()) {
 			if (effComp.isLoop()) {
+				effect.reset();
 				effect.start();
 			} else {
 				return;
@@ -58,13 +62,14 @@ public class ParticleRenderSystem extends DeferredEntityProcessingSystem {
 
 		Angle parentAngle = angleMapper.getSafe(effComp.getParentId(), Angle.NONE);
 		Angle angleOffset = angleMapper.getSafe(e, Angle.NONE);
+		
 		effComp.setRotation(angleOffset.rotation + parentAngle.rotation);
 	
 		Pos parentPos = positionMapper.getSafe(effComp.getParentId(), emptyPos);
 		Offset offsetPos = offsetMapper.getSafe(e, emptyOffset);
-		Vector2 rotatedOffset = offsetPos.xy.cpy().rotate(parentAngle.rotation).add(parentPos.xy).scl(PhysicsSystem.BOX_TO_WORLD);
-		effect.setPosition(rotatedOffset.x, rotatedOffset.y);
+		Vector2 rotatedOffset = offsetPos.xy.cpy().rotate(parentAngle.rotation).add(parentPos.xy);
 		
+		effect.setPosition(rotatedOffset.x, rotatedOffset.y);
 		effect.update(world.delta);
 		effect.draw(spriteBatch);
 	}

@@ -18,8 +18,6 @@ public class PhysicsSystem extends IntervalEntitySystem {
 	public static final float PHYSICS_TICK_RATE = 1 / 300f;
 	public static final int VELOCITY_ITERATIONS = 8;
 	public static final int POSITION_ITERATIONS = 3;
-	public static final float BOX_TO_WORLD = 32;
-	public static final float WORLD_TO_BOX = 1f / BOX_TO_WORLD;
 
 	private ComponentMapper<PhysicsBody> bodyMapper;
 	private ComponentMapper<Pos> positionMapper;
@@ -29,8 +27,9 @@ public class PhysicsSystem extends IntervalEntitySystem {
 
 	private float accDelta;
 	private long stepCount;
-	
+
 	long startTime;
+
 	public PhysicsSystem() {
 		super(Aspect.all(PhysicsBody.class, Pos.class), PHYSICS_TICK_RATE);
 		startTime = System.currentTimeMillis();
@@ -40,7 +39,7 @@ public class PhysicsSystem extends IntervalEntitySystem {
 	public void inserted(Entity e) {
 		process(e);
 	}
-	
+
 	@Override
 	protected void begin() {
 		super.begin();
@@ -69,7 +68,7 @@ public class PhysicsSystem extends IntervalEntitySystem {
 	protected void processEntities(Bag<Entity> entities) {
 		Object[] ids = entities.getData();
 		for (int i = 0, s = entities.size(); s > i; i++) {
-			process((Entity)ids[i]);
+			process((Entity) ids[i]);
 		}
 	}
 

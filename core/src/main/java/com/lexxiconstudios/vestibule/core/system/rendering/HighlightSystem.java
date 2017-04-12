@@ -1,4 +1,4 @@
-package com.lexxiconstudios.vestibule.core.system;
+package com.lexxiconstudios.vestibule.core.system.rendering;
 
 import com.artemis.Aspect.Builder;
 

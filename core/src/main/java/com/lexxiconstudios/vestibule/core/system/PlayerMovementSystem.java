@@ -33,6 +33,7 @@ public class PlayerMovementSystem extends IteratingSystem {
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
 			dir.x += 1;
 		}
+		
 		bodyMapper.get(entityId).getB2dBody().applyForceToCenter(dir.nor().scl(2.5f), true);
 	}
 

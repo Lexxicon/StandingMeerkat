@@ -10,6 +10,8 @@ public class VestibuleDesktop {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.foregroundFPS = 0;
 		config.backgroundFPS = 0;
+		config.width = 1600;
+		config.height = 900;
 		config.vSyncEnabled = false;
 		new LwjglApplication(new Vestibule(), config);
 	}

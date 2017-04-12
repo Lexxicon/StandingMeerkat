@@ -123,9 +123,10 @@ public class BaseEntFac {
 		return entityID;
 	}
 
-	public int makeThing(AssetDescriptor<Texture> texture, AssetDescriptor<ParticleEffect> pef, float x, float y) {
+	public int makeThing(AssetDescriptor<Texture> texture, float x, float y) {
 		int entityID = world.create(thingArchtype);
 		spriteMapper.get(entityID).set(new Sprite(am.get(texture), 0, 0, 64, 32));
+		spriteMapper.get(entityID).get().setSize(2, 1);
 		posMapper.get(entityID).set(x, y);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;

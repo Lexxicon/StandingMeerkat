@@ -19,18 +19,17 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.lexxiconstudios.vestibule.core.component.PlayerControlled;
 import com.lexxiconstudios.vestibule.core.exceptions.MultiException;
 import com.lexxiconstudios.vestibule.core.factories.BaseEntFac;
-import com.lexxiconstudios.vestibule.core.system.DebugPhysicsRenderer;
-import com.lexxiconstudios.vestibule.core.system.ParticleRenderSystem;
 import com.lexxiconstudios.vestibule.core.system.PhysicsSystem;
 import com.lexxiconstudios.vestibule.core.system.PlayerMovementSystem;
-import com.lexxiconstudios.vestibule.core.system.RenderingSystem;
+import com.lexxiconstudios.vestibule.core.system.camera.LXCameraSystem;
+import com.lexxiconstudios.vestibule.core.system.rendering.DebugPhysicsRenderer;
+import com.lexxiconstudios.vestibule.core.system.rendering.ParticleRenderSystem;
+import com.lexxiconstudios.vestibule.core.system.rendering.RenderingSystem;
 
-import net.mostlyoriginal.api.system.camera.CameraSystem;
 import net.mostlyoriginal.api.system.camera.EntityCameraSystem;
 import net.mostlyoriginal.api.system.graphics.RenderBatchingSystem;
 import net.mostlyoriginal.api.system.render.ClearScreenSystem;
@@ -78,22 +77,20 @@ public class Vestibule implements ApplicationListener {
 		world = new World(wcfg);
 		BaseEntFac entFac = new BaseEntFac(assetManager, world);
 		entFac.makeCamera();
-		int id = entFac.makeThing(tex, pef, -1, 0);
+		int id = entFac.makeThing(tex, -1, 0);
+		 entFac.makeThing(tex, -2, 0);
+		 entFac.makeThing(tex, 0, 0);
 		world.edit(id).add(new PlayerControlled());
-//		entFac.makeThing(tex, pef, -1, 2.1f);
-//		entFac.makeThing(tex, pef, -1, -2.1f);
-		entFac.makeParticleEffect(id, pef, 1, 1, 180, 1f, true);
-		entFac.makeParticleEffect(id, pef, -1, 0, -1, .5f, true);
+		entFac.makeParticleEffect(id, pef, 1, 1, 0, 1, true);
 		
 		entFac.makeWall(-3f, -3f, 6, .1f);
 		entFac.makeWall( 3f, -3f, .1f, 6);
 		entFac.makeWall( -3f,  -3f, .1f, 6);
 		entFac.makeWall(-3f,  3f, 6, .1f);
-		viewport = new FitViewport(200, 200, world.getSystem(CameraSystem.class).camera);
 	}
 
 	private BaseSystem[] buildCameraSystems() {
-		return new BaseSystem[] { new CameraSystem(1000, 1000), new EntityCameraSystem() };
+		return new BaseSystem[] { new LXCameraSystem(1), new EntityCameraSystem() };
 	}
 
 	private BaseSystem[] buildRenderingSystems() {
@@ -104,7 +101,7 @@ public class Vestibule implements ApplicationListener {
 
 	@Override
 	public void resize(int width, int height) {
-		viewport.update(width, height);
+		world.getSystem(LXCameraSystem.class).resize(width, height);
 	}
 
 	@Override

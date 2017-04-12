@@ -46,7 +46,10 @@ public class ParticleFXComponent extends Component {
 	public void setParticleEffect(ParticleEffect particleEffect) {
 		this.particleEffect = new ParticleEffect(particleEffect);
 		int emitters = particleEffect.getEmitters().size;
-		lowMin = lowMax = highMin = highMax = new float[emitters];
+		lowMin = new float[emitters];
+		lowMax = new float[emitters];
+		highMin =  new float[emitters];
+		highMax = new float[emitters];
 		for (int i = 0; i < emitters; i++) {
 			ParticleEmitter em = (ParticleEmitter) ((Object[])particleEffect.getEmitters().items)[i];
 			lowMin[i] = em.getAngle().getLowMin();
