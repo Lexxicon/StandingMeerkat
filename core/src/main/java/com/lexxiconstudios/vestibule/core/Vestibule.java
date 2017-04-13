@@ -69,7 +69,7 @@ public class Vestibule implements ApplicationListener {
 
 		batch = new SpriteBatch();
 		disposableResources.add(batch);
-		com.badlogic.gdx.physics.box2d.World b2dWorld = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, 0),
+		com.badlogic.gdx.physics.box2d.World b2dWorld = new com.badlogic.gdx.physics.box2d.World(new Vector2(0, -1f),
 				true);
 		disposableResources.add(b2dWorld);
 

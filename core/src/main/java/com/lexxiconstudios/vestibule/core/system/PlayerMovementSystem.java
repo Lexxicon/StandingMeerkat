@@ -33,7 +33,7 @@ public class PlayerMovementSystem extends IteratingSystem {
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
 			dir.x += 1;
 		}
-		moveMapper.get(entityId).force.add(dir.nor().scl(10f * world.delta));
+		moveMapper.get(entityId).force.add(dir.nor().scl(1f * world.delta));
 	}
 
 }

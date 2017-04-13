@@ -13,7 +13,7 @@ import net.mostlyoriginal.api.system.delegate.EntityProcessPrincipal;
 
 public class PhysicsSystem extends IntervalSystem implements EntityProcessPrincipal {
 
-	public static final float PHYSICS_TICK_RATE = 1 / 300f;
+	public static final float PHYSICS_TICK_RATE = 1 / 10f;
 	public static final int VELOCITY_ITERATIONS = 8;
 	public static final int POSITION_ITERATIONS = 3;
 
@@ -27,6 +27,8 @@ public class PhysicsSystem extends IntervalSystem implements EntityProcessPrinci
 	private long stepCount;
 
 	long startTime;
+	long pStp;
+	long timestamp = System.currentTimeMillis();
 
 	public PhysicsSystem() {
 		super(Aspect.all(), PHYSICS_TICK_RATE);
@@ -60,7 +62,7 @@ public class PhysicsSystem extends IntervalSystem implements EntityProcessPrinci
 	@Override
 	protected void processSystem() {
 		float actualDelta = getIntervalDelta() + accDelta;
-		do {
+		while (actualDelta > PHYSICS_TICK_RATE) {
 			for (int i = 0; i < preSystems.size(); i++) {
 				preSystems.get(i).process();
 			}
@@ -68,8 +70,16 @@ public class PhysicsSystem extends IntervalSystem implements EntityProcessPrinci
 			for (int i = 0; i < postSystems.size(); i++) {
 				postSystems.get(i).process();
 			}
+			
 			stepCount++;
-		} while ((actualDelta -= PHYSICS_TICK_RATE) > PHYSICS_TICK_RATE);
+			actualDelta -= PHYSICS_TICK_RATE;
+		}
+		long ts = System.currentTimeMillis() ;
+		if (ts - timestamp >= 1000) {
+			System.out.println((stepCount - pStp) );
+			pStp = stepCount;
+			timestamp = ts;
+		}
 		accDelta = actualDelta;
 	}
 

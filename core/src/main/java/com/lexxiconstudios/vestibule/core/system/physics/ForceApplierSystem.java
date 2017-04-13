@@ -16,7 +16,7 @@ public class ForceApplierSystem extends DeferredEntityProcessingSystem {
 
 	long timestamp = System.currentTimeMillis();
 	Vector2 cache = new Vector2();
-	
+
 	public ForceApplierSystem(PhysicsSystem principal) {
 		super(Aspect.all(PhysicsBody.class, PhysicsForce.class), principal);
 		principal.addPre(this);
@@ -35,13 +35,13 @@ public class ForceApplierSystem extends DeferredEntityProcessingSystem {
 	@Override
 	protected void process(int e) {
 		if (!forceMapper.get(e).force.isZero()) {
-			bodyMapper.get(e).getB2dBody().setLinearVelocity(forceMapper.get(e).force);
+			bodyMapper.get(e).getB2dBody().setLinearVelocity(forceMapper.get(e).force.add(bodyMapper.get(e).getB2dBody().getLinearVelocity()));
 			cache.add(forceMapper.get(e).force);
 			forceMapper.get(e).force.setZero();
 		}
-		
-		if(System.currentTimeMillis() - timestamp > 1000){
-			System.out.println(cache);
+
+		if (System.currentTimeMillis() - timestamp > 1000) {
+//			System.out.println(cache);
 			cache.setZero();
 			timestamp = System.currentTimeMillis();
 		}
