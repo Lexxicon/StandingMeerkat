@@ -5,12 +5,13 @@ import com.artemis.ComponentMapper;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
 import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
+import com.lexxiconstudios.vestibule.core.system.LockStepSystem;
 
 import net.mostlyoriginal.api.component.basic.Angle;
 import net.mostlyoriginal.api.component.basic.Pos;
 import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
 
-public class PositionSynchSystem extends DeferredEntityProcessingSystem {
+public class PositionSynchSystem extends LockStepSystem {
 
 	private ComponentMapper<PhysicsBody> bodyMapper;
 	private ComponentMapper<Pos> positionMapper;

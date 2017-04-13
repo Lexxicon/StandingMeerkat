@@ -7,23 +7,23 @@ import com.artemis.BaseSystem;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalSystem;
 import com.badlogic.gdx.physics.box2d.World;
+import com.lexxiconstudios.vestibule.core.system.LockStepSystem;
 
 import net.mostlyoriginal.api.system.delegate.EntityProcessAgent;
 import net.mostlyoriginal.api.system.delegate.EntityProcessPrincipal;
 
 public class PhysicsSystem extends IntervalSystem implements EntityProcessPrincipal {
 
-	public static final float PHYSICS_TICK_RATE = 1 / 10f;
+	public static final float PHYSICS_TICK_RATE = 1 / 300f;
 	public static final int VELOCITY_ITERATIONS = 8;
 	public static final int POSITION_ITERATIONS = 3;
 
-	private ArrayList<BaseSystem> preSystems = new ArrayList<>();
-	private ArrayList<BaseSystem> postSystems = new ArrayList<>();
+	private ArrayList<LockStepSystem> preSystems = new ArrayList<>();
+	private ArrayList<LockStepSystem> postSystems = new ArrayList<>();
 
 	@Wire
 	private World box2dWorld;
 
-	private float accDelta;
 	private long stepCount;
 
 	long startTime;
@@ -39,13 +39,13 @@ public class PhysicsSystem extends IntervalSystem implements EntityProcessPrinci
 		return stepCount;
 	}
 
-	public void addPre(BaseSystem system) {
+	public void addPre(LockStepSystem system) {
 		if (!preSystems.contains(system)) {
 			preSystems.add(system);
 		}
 	}
 
-	public void addPost(BaseSystem system) {
+	public void addPost(LockStepSystem system) {
 		if (!postSystems.contains(system)) {
 			postSystems.add(system);
 		}
@@ -58,11 +58,11 @@ public class PhysicsSystem extends IntervalSystem implements EntityProcessPrinci
 	public void removePost(BaseSystem system) {
 		postSystems.remove(system);
 	}
-
+	
 	@Override
 	protected void processSystem() {
-		float actualDelta = getIntervalDelta() + accDelta;
-		while (actualDelta > PHYSICS_TICK_RATE) {
+		acc+=PHYSICS_TICK_RATE;
+		do {
 			for (int i = 0; i < preSystems.size(); i++) {
 				preSystems.get(i).process();
 			}
@@ -72,15 +72,7 @@ public class PhysicsSystem extends IntervalSystem implements EntityProcessPrinci
 			}
 			
 			stepCount++;
-			actualDelta -= PHYSICS_TICK_RATE;
-		}
-		long ts = System.currentTimeMillis() ;
-		if (ts - timestamp >= 1000) {
-			System.out.println((stepCount - pStp) );
-			pStp = stepCount;
-			timestamp = ts;
-		}
-		accDelta = actualDelta;
+		} while((acc-=PHYSICS_TICK_RATE) >= PHYSICS_TICK_RATE);
 	}
 
 	@Override

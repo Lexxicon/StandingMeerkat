@@ -10,11 +10,13 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.joints.FrictionJointDef;
 import com.lexxiconstudios.vestibule.core.component.LXSprite;
 import com.lexxiconstudios.vestibule.core.component.Offset;
 import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
@@ -69,11 +71,8 @@ public class BaseEntFac {
 	}
 
 	private Archetype buildThingArch() {
-		return new ArchetypeBuilder()
-				.add(Pos.class).add(Renderable.class).add(Angle.class)
-//				.add(LXSprite.class)
-				.add(PhysicsForce.class)
-				.add(PhysicsBody.class).build(world);
+		return new ArchetypeBuilder().add(Pos.class).add(Renderable.class).add(Angle.class).add(LXSprite.class)
+				.add(PhysicsForce.class).add(PhysicsBody.class).build(world);
 	}
 
 	private Archetype buildCamArch() {
@@ -125,8 +124,8 @@ public class BaseEntFac {
 
 	public int makeThing(AssetDescriptor<Texture> texture, float x, float y) {
 		int entityID = world.create(thingArchtype);
-//		spriteMapper.get(entityID).set(new Sprite(am.get(texture), 0, 0, 64, 32));
-//		spriteMapper.get(entityID).get().setSize(2, 1);
+		spriteMapper.get(entityID).set(new Sprite(am.get(texture), 0, 0, 64, 32));
+		spriteMapper.get(entityID).get().setSize(2, 1);
 		posMapper.get(entityID).set(x, y);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
@@ -137,23 +136,9 @@ public class BaseEntFac {
 		Body body = b2dWorld.createBody(bodyDef);
 
 		PolygonShape poly = new PolygonShape();
-		
-		poly.set(new float[] { 
-				0, 0, 
-				2f, 0,
-				2f, 1f,
-				0, 1f });
-		
-		poly.set(new float[] { 
-				.1f,  0,
-				1.9f, 0,
-				2,     .1f,
-				2,    .9f,
-				1.9f, 1,
-				.1f,  1,
-				0,    .9f,
-				0,     .1f});
-		
+
+		poly.set(new float[] { 0, 0, 2f, 0, 2f, 1f, 0, 1f });
+
 		// Create a fixture definition to apply our shape to
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = poly;
@@ -165,7 +150,12 @@ public class BaseEntFac {
 		body.createFixture(fixtureDef);
 		body.applyTorque(10, true);
 
-		physBodyMapper.get(entityID).setB2dBody(body);
+		physBodyMapper.get(entityID).setB2dBody(body);		
+		FrictionJointDef fjd = new FrictionJointDef();
+		fjd.initialize(body, global, new Vector2(x + 1f, y + .5f));
+		fjd.maxForce = 5;
+		fjd.maxTorque = 10;
+		b2dWorld.createJoint(fjd);
 
 		return entityID;
 	}
