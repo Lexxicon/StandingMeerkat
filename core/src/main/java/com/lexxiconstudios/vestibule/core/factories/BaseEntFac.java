@@ -10,6 +10,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.joints.FrictionJointDef;
 import com.lexxiconstudios.vestibule.core.component.LXSprite;
+import com.lexxiconstudios.vestibule.core.component.MouseComponent;
 import com.lexxiconstudios.vestibule.core.component.Offset;
 import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
 import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
@@ -47,6 +49,7 @@ public class BaseEntFac {
 	private final Archetype cameraArchtype;
 	private final Archetype thingArchtype;
 	private final Archetype particleFXArchtype;
+	private final Archetype mouseCursor;
 
 	private Body global;
 
@@ -59,6 +62,17 @@ public class BaseEntFac {
 		this.particleFXArchtype = buildParticleFX();
 		this.wallType = buildWallArch();
 		this.global = b2dWorld.createBody(new BodyDef());
+		this.mouseCursor = buildMouseArch();
+	}
+
+	private Archetype buildMouseArch() {
+		return new ArchetypeBuilder()
+				.add(Pos.class)
+				.add(LXSprite.class)
+				.add(Renderable.class)
+				.add(MouseComponent.class)
+				.add(Offset.class)
+				.build(world);
 	}
 
 	private Archetype buildWallArch() {
@@ -81,6 +95,15 @@ public class BaseEntFac {
 
 	public int makeCamera() {
 		return world.create(cameraArchtype);
+	}
+
+	public int makeMouseCursor(TextureAtlas als) {
+		int eID = world.create(mouseCursor);
+		LXSprite s = spriteMapper.get(eID);
+		s.set(als.createSprite("sparkPart"));
+		s.get().setSize(s.get().getWidth()/32f, s.get().getHeight()/32f);
+		offsetMapper.get(eID).xy.sub(s.get().getWidth()/2f, s.get().getHeight()/2f);
+		return eID;
 	}
 
 	public int makeParticleEffect(int parentId, AssetDescriptor<ParticleEffect> pef, float oX, float oY, float oRot,
@@ -126,6 +149,7 @@ public class BaseEntFac {
 		int entityID = world.create(thingArchtype);
 		spriteMapper.get(entityID).set(new Sprite(am.get(texture), 0, 0, 64, 32));
 		spriteMapper.get(entityID).get().setSize(2, 1);
+		spriteMapper.get(entityID).get().setOrigin(0, 0);
 		posMapper.get(entityID).set(x, y);
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
@@ -149,7 +173,7 @@ public class BaseEntFac {
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
 
-		physBodyMapper.get(entityID).setB2dBody(body);		
+		physBodyMapper.get(entityID).setB2dBody(body);
 		FrictionJointDef fjd = new FrictionJointDef();
 		fjd.initialize(body, global, new Vector2(x + 1f, y + .5f));
 		fjd.maxForce = 20;

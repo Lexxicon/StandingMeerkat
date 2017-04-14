@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.lexxiconstudios.vestibule.core.component.Offset;
 import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
-import com.lexxiconstudios.vestibule.core.system.camera.LXCameraSystem;
+import com.lexxiconstudios.vestibule.core.system.camera.LXViewportSystem;
 
 import net.mostlyoriginal.api.component.basic.Angle;
 import net.mostlyoriginal.api.component.basic.Pos;
@@ -29,7 +29,7 @@ public class ParticleRenderSystem extends DeferredEntityProcessingSystem {
 	@Wire
 	SpriteBatch spriteBatch;
 	@Wire
-	LXCameraSystem cameraSystem;
+	LXViewportSystem cameraSystem;
 	
 	public ParticleRenderSystem(RenderBatchingSystem renderBatcher) {
 		super(Aspect.all(ParticleFXComponent.class, Renderable.class), renderBatcher);

@@ -9,7 +9,6 @@ import com.lexxiconstudios.vestibule.core.system.LockStepSystem;
 
 import net.mostlyoriginal.api.component.basic.Angle;
 import net.mostlyoriginal.api.component.basic.Pos;
-import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
 
 public class PositionSynchSystem extends LockStepSystem {
 
