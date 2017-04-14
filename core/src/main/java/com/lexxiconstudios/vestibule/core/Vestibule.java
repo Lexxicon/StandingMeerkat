@@ -13,6 +13,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.ParticleEffectLoader.ParticleEffectParameter;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
@@ -59,17 +60,20 @@ public class Vestibule implements ApplicationListener {
 	Viewport viewport;
 
 	@Override
-	public void create() {		
+	public void create() {
 		Box2D.init();
-		AssetDescriptor<Sound> click = new AssetDescriptor<>("sfx/latch_click.mp3", Sound.class);
-		AssetDescriptor<Texture> tex = new AssetDescriptor<>("64_32.png", Texture.class);
-		AssetDescriptor<ParticleEffect> pef = new AssetDescriptor<>("effects/defaultFire.p", ParticleEffect.class);
+		ParticleEffectParameter parm = new ParticleEffectParameter();
+		AssetDescriptor<TextureAtlas> texAtlas = new AssetDescriptor<>("paks/VestTest.atlas", TextureAtlas.class);
+		parm.atlasFile = texAtlas.fileName;
+		parm.atlasPrefix = "effects/";
 
-//		TextureAtlas atls = new TextureAtlas("paks/VestTest.atlas");
-		
+		AssetDescriptor<Sound> click = new AssetDescriptor<>("sfx/latch_click.mp3", Sound.class);
+		AssetDescriptor<Texture> tex = new AssetDescriptor<>("Ships.png", Texture.class);
+		AssetDescriptor<ParticleEffect> pef = new AssetDescriptor<>("effects/Spark.p", ParticleEffect.class,
+				parm);
+
 		assetManager = new AssetManager();
 		disposableResources.add(assetManager);
-		AssetDescriptor<TextureAtlas> texAtlas = new AssetDescriptor<>("paks/VestTest.atlas", TextureAtlas.class);
 		assetManager.load(texAtlas);
 		assetManager.load(pef);
 		assetManager.load(tex);
@@ -84,11 +88,11 @@ public class Vestibule implements ApplicationListener {
 		WorldConfiguration wcfg = new WorldConfigurationBuilder()
 				.with(new ClearScreenSystem())
 				.with(new EntityLinkManager())
-				.with(buildCameraSystems())
 				.with(new PlayerMovementSystem())
-				.with(new SFXPlayer())
-				.with(new MouseCursorSystem())
 				.with(buildPhysicsSystems())
+				.with(new MouseCursorSystem())
+				.with(new SFXPlayer())
+				.with(buildCameraSystems())
 				.with(buildRenderingSystems()).build();
 
 		wcfg.register(b2dWorld);
@@ -97,24 +101,27 @@ public class Vestibule implements ApplicationListener {
 
 		world = new World(wcfg);
 		BaseEntFac entFac = new BaseEntFac(assetManager, world);
-		// entFac.makeCamera();
+//		 entFac.makeCamera();
 		int id = entFac.makeThing(tex, -1, 0);
-		entFac.makeThing(tex, -2, 0);
-		entFac.makeThing(tex, 0, 0);
+//		entFac.makeThing(tex, -2, 0);
+//		entFac.makeThing(tex, 0, 0);
 		entFac.makeMouseCursor(assetManager.get(texAtlas));
 		world.edit(id).add(new PlayerControlled());
 		world.edit(id).add(new Camera());
-		// entFac.makeParticleEffect(id, pef, 1, 1, 0, 1, true);
-		float size = 4;
-		entFac.makeWall(-size, -size, size * 2, .1f);
-		entFac.makeWall(size, -size, .1f, size * 2);
-		entFac.makeWall(-size, -size, .1f, size * 2);
-		entFac.makeWall(-size, size, size * 2, .1f);
+		entFac.makeParticleEffect(id, pef, 
+				0.0f, .90f, 90, 
+				.4f, true);
+		
+//		float size = 4;
+//		entFac.makeWall(-size, -size, size * 2, .1f);
+//		entFac.makeWall(size, -size, .1f, size * 2);
+//		entFac.makeWall(-size, -size, .1f, size * 2);
+//		entFac.makeWall(-size, size, size * 2, .1f);
 	}
 
 	private BaseSystem[] buildCameraSystems() {
 		return new BaseSystem[] {
-				new LXViewportSystem(10, 10),
+				new LXViewportSystem(20, 20),
 				new LXEntityCameraSystem() };
 	}
 

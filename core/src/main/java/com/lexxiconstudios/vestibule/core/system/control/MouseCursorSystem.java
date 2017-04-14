@@ -20,6 +20,7 @@ public class MouseCursorSystem extends IteratingSystem {
 	ComponentMapper<Pos> pm;
 	LXViewportSystem viewportSystem;
 	Cursor empty;
+	boolean captureCursor = true;
 
 	public MouseCursorSystem() {
 		super(Aspect.all(Pos.class, MouseComponent.class));
@@ -38,9 +39,6 @@ public class MouseCursorSystem extends IteratingSystem {
 
 	@Override
 	protected void process(int entityId) {
-		// Gdx.input.setCursorPosition(
-		// MathUtils.clamp(Gdx.input.getX(), 0, Gdx.graphics.getWidth()),
-		// MathUtils.clamp(Gdx.input.getY(), 0, Gdx.graphics.getHeight()));
 
 		Vector3 v3 = viewportSystem.viewport.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 		pm.get(entityId).xy.set(v3.x, v3.y);

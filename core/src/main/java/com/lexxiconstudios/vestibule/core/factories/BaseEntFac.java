@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -160,8 +159,14 @@ public class BaseEntFac {
 		Body body = b2dWorld.createBody(bodyDef);
 
 		PolygonShape poly = new PolygonShape();
-
-		poly.set(new float[] { 0, 0, 2f, 0, 2f, 1f, 0, 1f });
+		poly.set(new float[] { 
+				0,  1f,
+				2f, 1f,
+				2f, 0.875f,
+				1.5625f, 0.4375f,
+				0.53125f,0.4375f, 
+				0, 0.78125f
+				});
 
 		// Create a fixture definition to apply our shape to
 		FixtureDef fixtureDef = new FixtureDef();
@@ -169,14 +174,14 @@ public class BaseEntFac {
 		fixtureDef.density = 1f;
 		fixtureDef.friction = .1f;
 		fixtureDef.restitution = 0.3f; // Make it bounce a little bit
-
+		
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
 
 		physBodyMapper.get(entityID).setB2dBody(body);
 		FrictionJointDef fjd = new FrictionJointDef();
-		fjd.initialize(body, global, new Vector2(x + 1f, y + .5f));
-		fjd.maxForce = 20;
+		fjd.initialize(body, global, body.getWorldCenter().cpy().sub(0, .01f));
+		fjd.maxForce = 10;
 		fjd.maxTorque = 1;
 		b2dWorld.createJoint(fjd);
 
