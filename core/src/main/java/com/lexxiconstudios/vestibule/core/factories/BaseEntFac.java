@@ -113,7 +113,7 @@ public class BaseEntFac {
 		// Create a fixture definition to apply our shape to
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = poly;
-		fixtureDef.friction = 0.0f;
+		fixtureDef.friction = 0.1f;
 
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
@@ -143,18 +143,17 @@ public class BaseEntFac {
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = poly;
 		fixtureDef.density = 1f;
-		fixtureDef.friction = .0f;
+		fixtureDef.friction = .1f;
 		fixtureDef.restitution = 0.3f; // Make it bounce a little bit
 
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
-		body.applyTorque(10, true);
 
 		physBodyMapper.get(entityID).setB2dBody(body);		
 		FrictionJointDef fjd = new FrictionJointDef();
 		fjd.initialize(body, global, new Vector2(x + 1f, y + .5f));
-		fjd.maxForce = 5;
-		fjd.maxTorque = 10;
+		fjd.maxForce = 20;
+		fjd.maxTorque = 1;
 		b2dWorld.createJoint(fjd);
 
 		return entityID;
