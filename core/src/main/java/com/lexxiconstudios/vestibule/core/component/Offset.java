@@ -4,6 +4,8 @@ import net.mostlyoriginal.api.component.basic.Pos;
 
 public class Offset extends Pos{
 
+	public static final Offset NONE = new Offset();
+	
 	/**
 	 * 
 	 */
