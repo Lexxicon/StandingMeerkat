@@ -1,4 +1,4 @@
-package com.lexxiconstudios.vestibule.core.component;
+package com.lexxiconstudios.vestibule.core.component.markers;
 
 import com.artemis.Component;
 

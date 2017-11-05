@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.Vector3;
-import com.lexxiconstudios.vestibule.core.component.MouseComponent;
+import com.lexxiconstudios.vestibule.core.component.markers.MouseComponent;
 import com.lexxiconstudios.vestibule.core.system.camera.LXViewportSystem;
 
 import net.mostlyoriginal.api.component.basic.Pos;

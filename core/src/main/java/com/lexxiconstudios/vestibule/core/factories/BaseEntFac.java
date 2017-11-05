@@ -14,15 +14,17 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.joints.FrictionJointDef;
+import com.lexxiconstudios.vestibule.core.component.GravitySource;
 import com.lexxiconstudios.vestibule.core.component.LXSprite;
-import com.lexxiconstudios.vestibule.core.component.MouseComponent;
 import com.lexxiconstudios.vestibule.core.component.Offset;
 import com.lexxiconstudios.vestibule.core.component.ParticleFXComponent;
 import com.lexxiconstudios.vestibule.core.component.PhysicsBody;
 import com.lexxiconstudios.vestibule.core.component.PhysicsForce;
+import com.lexxiconstudios.vestibule.core.component.markers.MouseComponent;
 
 import net.mostlyoriginal.api.component.basic.Angle;
 import net.mostlyoriginal.api.component.basic.Pos;
@@ -37,6 +39,7 @@ public class BaseEntFac {
 	private ComponentMapper<PhysicsBody> physBodyMapper;
 	private ComponentMapper<ParticleFXComponent> pfxMapper;
 	private ComponentMapper<Offset> offsetMapper;
+	private ComponentMapper<GravitySource> gravitySourceMapper;
 
 	@Wire
 	private com.badlogic.gdx.physics.box2d.World b2dWorld;
@@ -49,6 +52,7 @@ public class BaseEntFac {
 	private final Archetype thingArchtype;
 	private final Archetype particleFXArchtype;
 	private final Archetype mouseCursor;
+	private final Archetype planetArchtype;
 
 	private Body global;
 
@@ -62,6 +66,7 @@ public class BaseEntFac {
 		this.wallType = buildWallArch();
 		this.global = b2dWorld.createBody(new BodyDef());
 		this.mouseCursor = buildMouseArch();
+		this.planetArchtype = buildPlanetArch();
 	}
 
 	private Archetype buildMouseArch() {
@@ -91,9 +96,42 @@ public class BaseEntFac {
 	private Archetype buildCamArch() {
 		return new ArchetypeBuilder().add(Pos.class).add(Camera.class).build(world);
 	}
+	
+	private Archetype buildPlanetArch(){
+		return new ArchetypeBuilder().add(Pos.class).add(PhysicsBody.class).add(GravitySource.class).build(world);
+	}
 
 	public int makeCamera() {
 		return world.create(cameraArchtype);
+	}
+	
+	public int makePlanet(float x, float y, float r, float density){
+		int eID = world.create(planetArchtype);
+		posMapper.get(eID).set(x, y);
+		
+		BodyDef bodyDef = new BodyDef();
+		// Set our body's starting position in the world
+		bodyDef.position.set(x, y);
+		com.badlogic.gdx.physics.box2d.World b2d = world.getRegistered(com.badlogic.gdx.physics.box2d.World.class);
+		// Create our body in the world using our body definition
+		Body body = b2d.createBody(bodyDef);
+		CircleShape circle = new CircleShape();
+		circle.setRadius(r);
+
+		// Create a fixture definition to apply our shape to
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = circle;
+		fixtureDef.friction = 0.1f;
+
+		// Create our fixture and attach it to the body
+		body.createFixture(fixtureDef);
+
+		physBodyMapper.get(eID).setB2dBody(body);
+		
+		gravitySourceMapper.get(eID).originEntity = eID;
+		gravitySourceMapper.get(eID).effectiveGravity = r * density;
+		gravitySourceMapper.get(eID).sphereOfInfluence = r * density * 10;
+		return eID;
 	}
 
 	public int makeMouseCursor(TextureAtlas als) {
@@ -179,11 +217,11 @@ public class BaseEntFac {
 		body.createFixture(fixtureDef);
 
 		physBodyMapper.get(entityID).setB2dBody(body);
-		FrictionJointDef fjd = new FrictionJointDef();
-		fjd.initialize(body, global, body.getWorldCenter().cpy().sub(0, .01f));
-		fjd.maxForce = 10;
-		fjd.maxTorque = 1;
-		b2dWorld.createJoint(fjd);
+//		FrictionJointDef fricJointDef = new FrictionJointDef();
+//		fricJointDef.initialize(body, global, body.getWorldCenter().cpy().sub(0, .01f));
+//		fricJointDef.maxForce = 10;
+//		fricJointDef.maxTorque = 1;
+//		b2dWorld.createJoint(fricJointDef);
 
 		return entityID;
 	}

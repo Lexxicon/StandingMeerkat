@@ -24,15 +24,18 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.lexxiconstudios.vestibule.core.component.PlayerControlled;
+import com.lexxiconstudios.vestibule.core.component.markers.AffectedByGravity;
+import com.lexxiconstudios.vestibule.core.component.markers.PlayerControlled;
 import com.lexxiconstudios.vestibule.core.exceptions.MultiException;
 import com.lexxiconstudios.vestibule.core.factories.BaseEntFac;
+import com.lexxiconstudios.vestibule.core.system.GravityKeeperSystem;
 import com.lexxiconstudios.vestibule.core.system.audio.SFXPlayer;
 import com.lexxiconstudios.vestibule.core.system.camera.LXEntityCameraSystem;
 import com.lexxiconstudios.vestibule.core.system.camera.LXViewportSystem;
 import com.lexxiconstudios.vestibule.core.system.control.MouseCursorSystem;
 import com.lexxiconstudios.vestibule.core.system.control.PlayerMovementSystem;
 import com.lexxiconstudios.vestibule.core.system.physics.ForceApplierSystem;
+import com.lexxiconstudios.vestibule.core.system.physics.GravitySystem;
 import com.lexxiconstudios.vestibule.core.system.physics.PhysicsSystem;
 import com.lexxiconstudios.vestibule.core.system.physics.PositionSynchSystem;
 import com.lexxiconstudios.vestibule.core.system.rendering.DebugPhysicsRenderer;
@@ -93,7 +96,8 @@ public class Vestibule implements ApplicationListener {
 				.with(new MouseCursorSystem())
 				.with(new SFXPlayer())
 				.with(buildCameraSystems())
-				.with(buildRenderingSystems()).build();
+				.with(buildRenderingSystems())
+				.build();
 
 		wcfg.register(b2dWorld);
 		wcfg.register(batch);
@@ -101,22 +105,17 @@ public class Vestibule implements ApplicationListener {
 
 		world = new World(wcfg);
 		BaseEntFac entFac = new BaseEntFac(assetManager, world);
-//		 entFac.makeCamera();
+		
+		entFac.makePlanet(-5, 0, 5, 1);
+		
 		int id = entFac.makeThing(tex, -1, 0);
-//		entFac.makeThing(tex, -2, 0);
-//		entFac.makeThing(tex, 0, 0);
 		entFac.makeMouseCursor(assetManager.get(texAtlas));
 		world.edit(id).add(new PlayerControlled());
 		world.edit(id).add(new Camera());
+		world.edit(id).add(new AffectedByGravity());
 		entFac.makeParticleEffect(id, pef, 
 				0.0f, .90f, 90, 
 				.4f, true);
-		
-//		float size = 4;
-//		entFac.makeWall(-size, -size, size * 2, .1f);
-//		entFac.makeWall(size, -size, .1f, size * 2);
-//		entFac.makeWall(-size, -size, .1f, size * 2);
-//		entFac.makeWall(-size, size, size * 2, .1f);
 	}
 
 	private BaseSystem[] buildCameraSystems() {
@@ -129,8 +128,10 @@ public class Vestibule implements ApplicationListener {
 		PhysicsSystem physicsSystem = new PhysicsSystem();
 		return new BaseSystem[] {
 				physicsSystem,
+				new GravityKeeperSystem(physicsSystem),
 				new PositionSynchSystem(physicsSystem),
-				new ForceApplierSystem(physicsSystem) };
+				new ForceApplierSystem(physicsSystem),
+				new GravitySystem(physicsSystem)};
 	}
 
 	private BaseSystem[] buildRenderingSystems() {

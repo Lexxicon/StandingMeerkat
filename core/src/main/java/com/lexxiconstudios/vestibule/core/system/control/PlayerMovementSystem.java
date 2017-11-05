@@ -7,7 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.lexxiconstudios.vestibule.core.component.PhysicsForce;
-import com.lexxiconstudios.vestibule.core.component.PlayerControlled;
+import com.lexxiconstudios.vestibule.core.component.markers.PlayerControlled;
 
 public class PlayerMovementSystem extends IteratingSystem {
 
